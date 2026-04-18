@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface Post {
   id: number;
@@ -348,6 +348,7 @@ const SidebarDivider = styled.hr`
   border: 0;
   border-top: 1px solid #222;
   margin: 0;
+  width: 100%;
 `;
 
 const SidebarGroup = styled.div`
@@ -455,8 +456,39 @@ async function getPosts(page: string): Promise<Post[]> {
 export default function CommunityPage() {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
+  
+  const [currentPath, setCurrentPath] = useState('/');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+      
+      const handlePopState = () => {
+        setCurrentPath(window.location.pathname);
+      };
+      
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, []);
+
   const currentPage = (router.query.page as string) || '1';
-  const currentTag = (router.query.tag as string) || '전체 게시판';
+
+  const tabTitleMap: Record<string, string> = {
+    '/': '전체 게시판',
+    '/notice': '공지사항',
+    '/user-spotlight': '유저 스포트라이트',
+    '/general': '자유 게시판',
+    '/challenge': '챌린지',
+    '/project-and-steps': '프로젝트 & 과정',
+    '/tips-and-tricks': '팁 & 트릭',
+    '/qna': 'QnA',
+    '/user-feedback': '유저 피드백',
+    '/job-board': '구인구직',
+    '/community-guide': '커뮤니티 가이드',
+  };
+
+  const currentTitle = tabTitleMap[currentPath] || '전체 게시판';
 
   const { data: banners } = useQuery({
     queryKey: ['banners'],
@@ -464,7 +496,7 @@ export default function CommunityPage() {
   });
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['posts', currentPage],
+    queryKey: ['posts', currentPage, currentPath],
     queryFn: () => getPosts(currentPage),
   });
 
@@ -478,15 +510,9 @@ export default function CommunityPage() {
     }
   };
 
-  const handleTagClick = (tag: string) => {
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, tag },
-      },
-      undefined,
-      { shallow: true }
-    );
+  const handlePathClick = (path: string) => {
+    window.history.pushState(null, '', path);
+    setCurrentPath(path);
   };
 
   return (
@@ -585,8 +611,8 @@ export default function CommunityPage() {
       <FlexContainer>
         <SidebarWrapper>
           <SidebarItemBtn 
-            active={currentTag === '전체 게시판'} 
-            onClick={() => handleTagClick('전체 게시판')}
+            active={currentPath === '/'} 
+            onClick={() => handlePathClick('/')}
           >
             전체 게시판
           </SidebarItemBtn>
@@ -596,14 +622,14 @@ export default function CommunityPage() {
           <SidebarGroup>
             <SidebarGroupTitle>공식 계정</SidebarGroupTitle>
             <SidebarItemBtn 
-              active={currentTag === '공지사항'} 
-              onClick={() => handleTagClick('공지사항')}
+              active={currentPath === '/notice'} 
+              onClick={() => handlePathClick('/notice')}
             >
               공지사항
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '유저 스포트라이트'} 
-              onClick={() => handleTagClick('유저 스포트라이트')}
+              active={currentPath === '/user-spotlight'} 
+              onClick={() => handlePathClick('/user-spotlight')}
             >
               유저 스포트라이트
             </SidebarItemBtn>
@@ -614,44 +640,44 @@ export default function CommunityPage() {
           <SidebarGroup>
             <SidebarGroupTitle>주제</SidebarGroupTitle>
             <SidebarItemBtn 
-              active={currentTag === '자유 게시판'} 
-              onClick={() => handleTagClick('자유 게시판')}
+              active={currentPath === '/general'} 
+              onClick={() => handlePathClick('/general')}
             >
               자유 게시판
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '챌린지'} 
-              onClick={() => handleTagClick('챌린지')}
+              active={currentPath === '/challenge'} 
+              onClick={() => handlePathClick('/challenge')}
             >
               챌린지
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '프로젝트 & 과정'} 
-              onClick={() => handleTagClick('프로젝트 & 과정')}
+              active={currentPath === '/project-and-steps'} 
+              onClick={() => handlePathClick('/project-and-steps')}
             >
               프로젝트 & 과정
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '팁 & 트릭'} 
-              onClick={() => handleTagClick('팁 & 트릭')}
+              active={currentPath === '/tips-and-tricks'} 
+              onClick={() => handlePathClick('/tips-and-tricks')}
             >
               팁 & 트릭
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === 'QnA'} 
-              onClick={() => handleTagClick('QnA')}
+              active={currentPath === '/qna'} 
+              onClick={() => handlePathClick('/qna')}
             >
               QnA
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '유저 피드백'} 
-              onClick={() => handleTagClick('유저 피드백')}
+              active={currentPath === '/user-feedback'} 
+              onClick={() => handlePathClick('/user-feedback')}
             >
               유저 피드백
             </SidebarItemBtn>
             <SidebarItemBtn 
-              active={currentTag === '구인구직'} 
-              onClick={() => handleTagClick('구인구직')}
+              active={currentPath === '/job-board'} 
+              onClick={() => handlePathClick('/job-board')}
             >
               구인구직
             </SidebarItemBtn>
@@ -660,8 +686,8 @@ export default function CommunityPage() {
           <SidebarDivider />
 
           <SidebarItemBtn 
-            active={currentTag === '커뮤니티 가이드'} 
-            onClick={() => handleTagClick('커뮤니티 가이드')}
+            active={currentPath === '/community-guide'} 
+            onClick={() => handlePathClick('/community-guide')}
           >
             커뮤니티 가이드
           </SidebarItemBtn>
@@ -669,8 +695,8 @@ export default function CommunityPage() {
 
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <span>{currentTag}</span>
-            <input type="text" placeholder={`${currentTag}에서 검색`} style={{ padding: '5px' }} />
+            <span>{currentTitle}</span>
+            <input type="text" placeholder={`${currentTitle}에서 검색`} style={{ padding: '5px' }} />
           </div>
 
           {isLoading ? (
