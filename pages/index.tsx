@@ -1,20 +1,8 @@
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import { useRef, useEffect, useState } from 'react';
-
-interface Post {
-  id: number;
-  category: string;
-  title: string;
-  content: string;
-  author: string;
-  timeAgo: string;
-  views: number;
-  likes: number;
-  comments: number;
-}
 
 interface BannerPost {
   postId: string;
@@ -28,6 +16,24 @@ interface BannerPost {
     width: number;
     height: number;
   };
+}
+
+interface PostItemData {
+  postId: string;
+  title: string;
+  summary: string;
+  category: number;
+  creatorName: string;
+  creatorThumbnailPath: string;
+  postThumbnail: {
+    path: string;
+    width: number;
+    height: number;
+  };
+  viewCount: number;
+  likesCount: number;
+  commentsCount: number;
+  registeredDate: string;
 }
 
 const DarkBackground = styled.div`
@@ -342,6 +348,7 @@ const SidebarWrapper = styled.aside`
   display: flex;
   flex-direction: column;
   gap: 20px;
+  flex-shrink: 0;
 `;
 
 const SidebarDivider = styled.hr`
@@ -397,12 +404,231 @@ const SidebarItemBtn = styled.button<{ active?: boolean }>`
   `}
 `;
 
-const PostCard = styled.div`
+const MainPanel = styled.main`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const TopFilterBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const TopFilterLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const SelectBox = styled.div`
   background-color: #1a1a1a;
   border: 1px solid #333;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: #aaaaaa;
+  font-size: 14px;
+  cursor: pointer;
+`;
+
+const TagList = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const TagBtn = styled.button`
+  background-color: #222;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: #ccc;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #333;
+    color: #fff;
+  }
+`;
+
+const SearchInputBox = styled.div`
+  background-color: #222;
+  border-radius: 20px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 260px;
+`;
+
+const SearchInput = styled.input`
+  background: none;
+  border: none;
+  color: #fff;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+
+  &::placeholder {
+    color: #888;
+  }
+`;
+
+const BoardContainer = styled.div`
+  background-color: #161616;
+  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+`;
+
+const BoardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 20px;
-  margin-bottom: 15px;
-  border-radius: 5px;
+  border-bottom: 1px solid #2a2a2a;
+`;
+
+const BoardTitle = styled.h2`
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+`;
+
+const BoardHeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #aaa;
+  font-size: 14px;
+`;
+
+const PinnedPost = styled.div`
+  padding: 16px 20px;
+  background-color: #1f1f1f;
+  border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const PinnedLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const PostListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const PostListItem = styled.div`
+  display: flex;
+  padding: 24px 20px;
+  border-bottom: 1px solid #2a2a2a;
+  gap: 24px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #1a1a1a;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const PostContentArea = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SmallBadge = styled.div`
+  align-self: flex-start;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e0a3b8;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 12px;
+`;
+
+const ItemTitle = styled.h3`
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 600;
+`;
+
+const ItemSummary = styled.p`
+  margin: 0 0 16px 0;
+  font-size: 15px;
+  color: #aaaaaa;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const ItemMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #888888;
+`;
+
+const SmallAvatar = styled.div<{ bg: string }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: url(${(props) => props.bg}) center/cover no-repeat;
+  background-color: #444;
+`;
+
+const ItemThumbnailWrapper = styled.div`
+  width: 140px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #222;
+  flex-shrink: 0;
+`;
+
+const ItemThumbnail = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const FloatingWriteBtn = styled.button`
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  color: #000000;
+  padding: 12px 32px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 50;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
 `;
 
 const getCategoryName = (categoryId: number) => {
@@ -410,69 +636,72 @@ const getCategoryName = (categoryId: number) => {
     210: '프로젝트 & 과정',
     215: '자유 게시판',
     220: '팁 & 트릭',
-    230: '질문 & 답변',
+    230: 'QnA',
   };
   return categoryMap[categoryId] || '게시판';
 };
 
+function formatTimeAgo(dateString: string) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return `${diffInSeconds}초 전`;
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours}시간 전`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  return `${diffInDays}일 전`;
+}
+
 async function getBanners(): Promise<BannerPost[]> {
   const res = await fetch('https://test-connect-community.api.clo-set.com/api/post/search?isBanner=true&pageSize=12&sortBy=5&language=2%20%3D%20KO', {
-    headers: {
-      'accept': 'text/plain'
-    }
+    headers: { 'accept': 'text/plain' }
   });
   if (!res.ok) throw new Error('Failed to fetch banners');
   const data = await res.json();
   return data.posts || [];
 }
 
-async function getPosts(page: string): Promise<Post[]> {
-  return [
-    {
-      id: 1,
-      category: '팁 & 트릭',
-      title: '2D Snapshot 1:1 no longer outputs to scale',
-      content: 'Hi Community! I recently upgraded to CLO 2026...',
-      author: '@hothonbigsby',
-      timeAgo: '3시간 전',
-      views: 2,
-      likes: 0,
-      comments: 0,
-    },
-    {
-      id: 2,
-      category: '팁 & 트릭',
-      title: 'Animation',
-      content: 'Dear Melody, I have a problem with the animation...',
-      author: '@tina.a.sauer',
-      timeAgo: '하루 전',
-      views: 14,
-      likes: 0,
-      comments: 2,
-    }
-  ];
+async function fetchPosts({ pageParam = 1, queryKey }: any) {
+  const [_key, path] = queryKey;
+  
+  const categoryMapping: Record<string, string> = {
+    '/general': '215',
+    '/project-and-steps': '210',
+    '/tips-and-tricks': '220',
+    '/qna': '230'
+  };
+  
+  const catId = categoryMapping[path] || '';
+  const catQuery = catId ? `&category=${catId}` : '';
+  
+  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=4&keyword=&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
+    headers: { 'accept': 'text/plain' }
+  });
+  
+  if (!res.ok) throw new Error('Failed to fetch posts');
+  const data = await res.json();
+  return data;
 }
 
 export default function CommunityPage() {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   
   const [currentPath, setCurrentPath] = useState('/');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setCurrentPath(window.location.pathname);
-      
-      const handlePopState = () => {
-        setCurrentPath(window.location.pathname);
-      };
-      
+      const handlePopState = () => setCurrentPath(window.location.pathname);
       window.addEventListener('popstate', handlePopState);
       return () => window.removeEventListener('popstate', handlePopState);
     }
   }, []);
-
-  const currentPage = (router.query.page as string) || '1';
 
   const tabTitleMap: Record<string, string> = {
     '/': '전체 게시판',
@@ -495,10 +724,39 @@ export default function CommunityPage() {
     queryFn: getBanners,
   });
 
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ['posts', currentPage, currentPath],
-    queryFn: () => getPosts(currentPage),
+  const {
+    data: postData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useInfiniteQuery({
+    queryKey: ['posts', currentPath],
+    queryFn: fetchPosts,
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.posts && lastPage.posts.length === 24) {
+        return pages.length + 1;
+      }
+      return undefined;
+    },
   });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (trackRef.current) {
@@ -693,46 +951,100 @@ export default function CommunityPage() {
           </SidebarItemBtn>
         </SidebarWrapper>
 
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <span>{currentTitle}</span>
-            <input type="text" placeholder={`${currentTitle}에서 검색`} style={{ padding: '5px' }} />
-          </div>
+        <MainPanel>
+          <TopFilterBar>
+            <TopFilterLeft>
+              <SelectBox>소프트웨어 | 전체 ▼</SelectBox>
+              <TagList>
+                <TagBtn>CLO-SET</TagBtn>
+                <TagBtn>CONNECT</TagBtn>
+                <TagBtn>EveryWear</TagBtn>
+                <TagBtn>LiveSync</TagBtn>
+              </TagList>
+            </TopFilterLeft>
+            <SearchInputBox>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="#888"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <SearchInput placeholder="전체 게시판에서 검색" />
+            </SearchInputBox>
+          </TopFilterBar>
 
-          {isLoading ? (
-            <p>로딩중...</p>
-          ) : (
-            <div>
-              {posts && posts.map((post) => (
-                <PostCard key={post.id}>
-                  <div style={{ color: '#00e5ff', fontSize: '12px', marginBottom: '5px' }}>
-                    {post.category}
-                  </div>
-                  <h3 style={{ margin: '0 0 10px 0' }}>{post.title}</h3>
-                  <p style={{ color: '#888', fontSize: '14px' }}>{post.content}</p>
-                  <div style={{ marginTop: '15px', color: '#666', fontSize: '12px' }}>
-                    {post.author} · {post.timeAgo} · 👁 {post.views} · 👍 {post.likes} · 💬 {post.comments}
-                  </div>
-                </PostCard>
-              ))}
-            </div>
-          )}
-        </div>
+          <BoardContainer>
+            <BoardHeader>
+              <BoardTitle>{currentTitle}</BoardTitle>
+              <BoardHeaderRight>
+                <span>뷰 ▼</span>
+                <span>최근 활동순 ▼</span>
+              </BoardHeaderRight>
+            </BoardHeader>
 
-        <div style={{ width: '250px' }}>
-          <h3>인기 게시물</h3>
-          <div style={{ color: '#aaa', fontSize: '14px' }}>
-            <p style={{ borderBottom: '1px solid #333', paddingBottom: '10px' }}>
-              <strong style={{ color: '#fff' }}>공지사항</strong><br />
-              Notice: a recent issue...
-            </p>
-            <p>
-              <strong style={{ color: '#fff' }}>구인구직</strong><br />
-              [Job] Storm Creek...
-            </p>
-          </div>
-        </div>
+            <PinnedPost>
+              <PinnedLeft>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="#aaa"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                <span style={{ color: '#00e5ff', fontSize: '13px' }}>팁 & 트릭</span>
+                <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>🎉 300 Free Patterns for You!</span>
+              </PinnedLeft>
+              <div style={{ color: '#aaa' }}>{'< >'}</div>
+            </PinnedPost>
+
+            <PostListWrapper>
+              {status === 'pending' ? (
+                <div style={{ padding: '24px', color: '#aaa', textAlign: 'center' }}>데이터를 불러오는 중입니다...</div>
+              ) : status === 'error' ? (
+                <div style={{ padding: '24px', color: '#ff6b6b', textAlign: 'center' }}>데이터를 불러오지 못했습니다.</div>
+              ) : (
+                postData.pages.map((page, pageIndex) => (
+                  <div key={pageIndex}>
+                    {page.posts && page.posts.map((post: PostItemData) => {
+                      const badgeBg = post.category === 230 ? 'rgba(255,100,150,0.1)' : 'rgba(255,255,255,0.08)';
+                      const badgeColor = post.category === 230 ? '#ffb3c6' : '#ccc';
+                      const avatarImg = post.creatorThumbnailPath || `https://picsum.photos/seed/${post.creatorName}/50/50`;
+                      const thumbImg = post.postThumbnail?.path;
+
+                      return (
+                        <PostListItem key={post.postId}>
+                          <PostContentArea>
+                            <SmallBadge style={{ backgroundColor: badgeBg, color: badgeColor }}>
+                              {getCategoryName(post.category)}
+                            </SmallBadge>
+                            <ItemTitle>{post.title}</ItemTitle>
+                            <ItemSummary>{post.summary}</ItemSummary>
+                            
+                            <ItemMeta>
+                              <SmallAvatar bg={avatarImg} />
+                              <span>{post.creatorName}</span>
+                              <span>·</span>
+                              <span>{formatTimeAgo(post.registeredDate)}</span>
+                              <span>·</span>
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                              <span>{post.viewCount}</span>
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                              <span>{post.likesCount}</span>
+                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                              <span>{post.commentsCount}</span>
+                            </ItemMeta>
+                          </PostContentArea>
+
+                          {thumbImg && (
+                            <ItemThumbnailWrapper>
+                              <ItemThumbnail src={thumbImg} alt="thumbnail" />
+                            </ItemThumbnailWrapper>
+                          )}
+                        </PostListItem>
+                      );
+                    })}
+                  </div>
+                ))
+              )}
+              
+              <div ref={loadMoreRef} style={{ height: '20px' }}>
+                {isFetchingNextPage && <div style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>추가 데이터를 불러오는 중...</div>}
+              </div>
+            </PostListWrapper>
+          </BoardContainer>
+        </MainPanel>
       </FlexContainer>
+
+      <FloatingWriteBtn>글쓰기</FloatingWriteBtn>
     </DarkBackground>
   );
 }
