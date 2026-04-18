@@ -337,6 +337,65 @@ const FlexContainer = styled.div`
   gap: 30px;
 `;
 
+const SidebarWrapper = styled.aside`
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const SidebarDivider = styled.hr`
+  border: 0;
+  border-top: 1px solid #222;
+  margin: 0;
+`;
+
+const SidebarGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const SidebarGroupTitle = styled.div`
+  color: #666666;
+  font-size: 14px;
+  font-weight: bold;
+`;
+
+const SidebarItemBtn = styled.button<{ active?: boolean }>`
+  background: none;
+  border: none;
+  padding: 0 0 0 16px;
+  color: ${(props) => (props.active ? '#ffffff' : '#aaaaaa')};
+  font-size: 16px;
+  font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 24px;
+
+  &:hover {
+    color: #ffffff;
+  }
+
+  ${(props) =>
+    props.active &&
+    `
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 18px;
+      background-color: #ffffff;
+    }
+  `}
+`;
+
 const PostCard = styled.div`
   background-color: #1a1a1a;
   border: 1px solid #333;
@@ -397,6 +456,7 @@ export default function CommunityPage() {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
   const currentPage = (router.query.page as string) || '1';
+  const currentTag = (router.query.tag as string) || '전체 게시판';
 
   const { data: banners } = useQuery({
     queryKey: ['banners'],
@@ -416,6 +476,17 @@ export default function CommunityPage() {
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleTagClick = (tag: string) => {
+    router.push(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, tag },
+      },
+      undefined,
+      { shallow: true }
+    );
   };
 
   return (
@@ -512,20 +583,94 @@ export default function CommunityPage() {
       </CarouselWrapper>
 
       <FlexContainer>
-        <div style={{ width: '200px' }}>
-          <h3>전체 게시판</h3>
-          <ul style={{ listStyle: 'none', padding: 0, color: '#aaa' }}>
-            <li style={{ marginBottom: '10px' }}>공지사항</li>
-            <li style={{ marginBottom: '10px', color: '#fff' }}>자유 게시판</li>
-            <li style={{ marginBottom: '10px' }}>팁 & 트릭</li>
-            <li style={{ marginBottom: '10px' }}>QnA</li>
-          </ul>
-        </div>
+        <SidebarWrapper>
+          <SidebarItemBtn 
+            active={currentTag === '전체 게시판'} 
+            onClick={() => handleTagClick('전체 게시판')}
+          >
+            전체 게시판
+          </SidebarItemBtn>
+
+          <SidebarDivider />
+
+          <SidebarGroup>
+            <SidebarGroupTitle>공식 계정</SidebarGroupTitle>
+            <SidebarItemBtn 
+              active={currentTag === '공지사항'} 
+              onClick={() => handleTagClick('공지사항')}
+            >
+              공지사항
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '유저 스포트라이트'} 
+              onClick={() => handleTagClick('유저 스포트라이트')}
+            >
+              유저 스포트라이트
+            </SidebarItemBtn>
+          </SidebarGroup>
+
+          <SidebarDivider />
+
+          <SidebarGroup>
+            <SidebarGroupTitle>주제</SidebarGroupTitle>
+            <SidebarItemBtn 
+              active={currentTag === '자유 게시판'} 
+              onClick={() => handleTagClick('자유 게시판')}
+            >
+              자유 게시판
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '챌린지'} 
+              onClick={() => handleTagClick('챌린지')}
+            >
+              챌린지
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '프로젝트 & 과정'} 
+              onClick={() => handleTagClick('프로젝트 & 과정')}
+            >
+              프로젝트 & 과정
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '팁 & 트릭'} 
+              onClick={() => handleTagClick('팁 & 트릭')}
+            >
+              팁 & 트릭
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === 'QnA'} 
+              onClick={() => handleTagClick('QnA')}
+            >
+              QnA
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '유저 피드백'} 
+              onClick={() => handleTagClick('유저 피드백')}
+            >
+              유저 피드백
+            </SidebarItemBtn>
+            <SidebarItemBtn 
+              active={currentTag === '구인구직'} 
+              onClick={() => handleTagClick('구인구직')}
+            >
+              구인구직
+            </SidebarItemBtn>
+          </SidebarGroup>
+
+          <SidebarDivider />
+
+          <SidebarItemBtn 
+            active={currentTag === '커뮤니티 가이드'} 
+            onClick={() => handleTagClick('커뮤니티 가이드')}
+          >
+            커뮤니티 가이드
+          </SidebarItemBtn>
+        </SidebarWrapper>
 
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <span>전체 게시판</span>
-            <input type="text" placeholder="전체 게시판에서 검색" style={{ padding: '5px' }} />
+            <span>{currentTag}</span>
+            <input type="text" placeholder={`${currentTag}에서 검색`} style={{ padding: '5px' }} />
           </div>
 
           {isLoading ? (
