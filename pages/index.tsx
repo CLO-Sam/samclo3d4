@@ -193,6 +193,8 @@ const GridIconBtn = styled.button`
 const CarouselWrapper = styled.div`
   position: relative;
   max-width: 1440px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 30px auto;
   padding: 0 20px;
 `;
@@ -340,6 +342,8 @@ const CarouselNavBtn = styled.button<{ direction: 'left' | 'right' }>`
 const FlexContainer = styled.div`
   display: flex;
   max-width: 1440px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 20px;
   gap: 32px;
@@ -425,17 +429,64 @@ const TopFilterBar = styled.div`
 const TopFilterLeft = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 `;
 
-const SelectBox = styled.div`
-  background-color: #131315;
-  border: 1px solid #3f3f46;
+const SoftwareSelectWrapper = styled.div`
+  position: relative;
+`;
+
+const SoftwareButton = styled.button<{ isActive?: boolean }>`
+  background-color: transparent;
+  border: 1px solid ${(props) => (props.isActive ? '#55e6c1' : '#3f3f46')};
+  color: ${(props) => (props.isActive ? '#55e6c1' : '#a1a1aa')};
   padding: 8px 16px;
   border-radius: 20px;
-  color: #a1a1aa;
   font-size: 13px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: ${(props) => (props.isActive ? '#55e6c1' : '#71717a')};
+  }
+`;
+
+const SoftwareDropdownMenu = styled.div<{ isOpen: boolean }>`
+  display: ${(props) => (props.isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+  position: absolute;
+  top: 40px;
+  left: 0;
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+`;
+
+const SoftwareDropdownItem = styled.div<{ active?: boolean }>`
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: ${(props) => (props.active ? '#1c3d3f' : 'transparent')};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => (props.active ? '#1c3d3f' : '#3f3f46')};
+  }
+`;
+
+const TopFilterDivider = styled.div`
+  width: 1px;
+  height: 14px;
+  background-color: #3f3f46;
 `;
 
 const TagList = styled.div`
@@ -533,7 +584,7 @@ const SortButton = styled.button`
   background: none;
   border: none;
   color: #ffffff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -556,7 +607,7 @@ const SortDropdownMenu = styled.div<{ isOpen: boolean }>`
   border: 1px solid #3f3f46;
   border-radius: 8px;
   padding: 8px;
-  min-width: 160px;
+  min-width: 140px;
   z-index: 100;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 `;
@@ -564,7 +615,7 @@ const SortDropdownMenu = styled.div<{ isOpen: boolean }>`
 const SortDropdownItem = styled.div<{ active?: boolean }>`
   padding: 12px 16px;
   color: #ffffff;
-  font-size: 15px;
+  font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
   background-color: ${(props) => (props.active ? '#1c3d3f' : 'transparent')};
@@ -815,7 +866,7 @@ async function getBanners(): Promise<BannerPost[]> {
 }
 
 async function fetchPosts({ pageParam = 1, queryKey }: any) {
-  const [_key, path, sortBy, keyword] = queryKey;
+  const [_key, path, sortBy, keyword, software] = queryKey;
   
   const categoryMapping: Record<string, string> = {
     '/notice': '100',
@@ -834,7 +885,11 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   const catQuery = catId ? `&category=${catId}` : '';
   const keywordQuery = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '&keyword=';
   
-  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}${keywordQuery}&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
+  let tagsQuery = '';
+  if (software === 'CLO') tagsQuery = '&tags=CLO';
+  if (software === 'MarvelousDesigner') tagsQuery = '&tags=MavelousDesigner';
+  
+  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}${keywordQuery}${tagsQuery}&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
     headers: { 'accept': 'text/plain' }
   });
   
@@ -861,18 +916,28 @@ export default function CommunityPage() {
   const trackRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
+  const softwareRef = useRef<HTMLDivElement>(null);
   
   const [currentPath, setCurrentPath] = useState('/');
   const [sortBy, setSortBy] = useState<number>(4);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [activeKeyword, setActiveKeyword] = useState('');
+  
+  const [selectedSoftware, setSelectedSoftware] = useState('전체');
+  const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
 
   const sortOptions = [
     { label: '최신순', value: 0 },
     { label: '추천순', value: 1 },
     { label: '최근 활동순', value: 4 },
   ];
+
+  const getTagsForSoftware = (software: string) => {
+    if (software === 'CLO') return ['Avatar', 'Colorway', 'Pattern', 'Rendering'];
+    if (software === 'MarvelousDesigner') return ['Animation', 'Retopology', 'Texture', 'UnrealEngine'];
+    return ['CLO-SET', 'CONNECT', 'EveryWear', 'LiveSync'];
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -887,6 +952,9 @@ export default function CommunityPage() {
     const handleClickOutside = (event: MouseEvent) => {
       if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
         setIsSortOpen(false);
+      }
+      if (softwareRef.current && !softwareRef.current.contains(event.target as Node)) {
+        setIsSoftwareOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -926,7 +994,7 @@ export default function CommunityPage() {
     isFetchingNextPage,
     status
   } = useInfiniteQuery({
-    queryKey: ['posts', currentPath, sortBy, activeKeyword],
+    queryKey: ['posts', currentPath, sortBy, activeKeyword, selectedSoftware],
     queryFn: fetchPosts,
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.posts && lastPage.posts.length === 24) {
@@ -1155,14 +1223,50 @@ export default function CommunityPage() {
         <MainPanel>
           <TopFilterBar>
             <TopFilterLeft>
-              <SelectBox>소프트웨어 | 전체 ▼</SelectBox>
+              <SoftwareSelectWrapper ref={softwareRef}>
+                <SoftwareButton 
+                  isActive={selectedSoftware !== '전체'}
+                  onClick={() => setIsSoftwareOpen(!isSoftwareOpen)}
+                >
+                  {selectedSoftware === '전체' ? (
+                    <>
+                      <span style={{ color: '#a1a1aa' }}>소프트웨어</span>
+                      <span style={{ color: '#3f3f46', margin: '0 12px' }}>|</span>
+                      <span style={{ color: '#fff' }}>전체</span>
+                    </>
+                  ) : (
+                    <span>{selectedSoftware === 'CLO' ? 'CLO' : 'Marvelous Designer'}</span>
+                  )}
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"/>
+                  </svg>
+                </SoftwareButton>
+                
+                <SoftwareDropdownMenu isOpen={isSoftwareOpen}>
+                  {['전체', 'CLO', 'MarvelousDesigner'].map((opt) => (
+                    <SoftwareDropdownItem
+                      key={opt}
+                      active={selectedSoftware === opt}
+                      onClick={() => {
+                        setSelectedSoftware(opt);
+                        setIsSoftwareOpen(false);
+                      }}
+                    >
+                      {opt === 'MarvelousDesigner' ? 'Marvelous Designer' : opt}
+                    </SoftwareDropdownItem>
+                  ))}
+                </SoftwareDropdownMenu>
+              </SoftwareSelectWrapper>
+              
+              <TopFilterDivider />
+
               <TagList>
-                <TagBtn>CLO-SET</TagBtn>
-                <TagBtn>CONNECT</TagBtn>
-                <TagBtn>EveryWear</TagBtn>
-                <TagBtn>LiveSync</TagBtn>
+                {getTagsForSoftware(selectedSoftware).map(tag => (
+                  <TagBtn key={tag}>{tag}</TagBtn>
+                ))}
               </TagList>
             </TopFilterLeft>
+
             <SearchInputBox>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
               <SearchInput 
@@ -1177,7 +1281,12 @@ export default function CommunityPage() {
           <BoardContainer>
             <BoardHeader>
               <BoardTitle>
-                {currentTitle} <BoardTitleSub>28 CLO-SET 게시글</BoardTitleSub>
+                {currentTitle}
+                {activeKeyword && (
+                  <BoardTitleSub>
+                    {postData?.pages?.[0]?.totalCount ?? postData?.pages?.[0]?.posts?.length ?? 0} CLO-SET 게시글
+                  </BoardTitleSub>
+                )}
               </BoardTitle>
               <BoardHeaderRight ref={sortRef}>
                 <SortButton onClick={() => setIsSortOpen(!isSortOpen)}>
