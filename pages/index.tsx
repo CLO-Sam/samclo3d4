@@ -514,11 +514,55 @@ const BoardTitleSub = styled.span`
 `;
 
 const BoardHeaderRight = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  color: #a1a1aa;
-  font-size: 14px;
+`;
+
+const SortButton = styled.button`
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0;
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+const SortDropdownMenu = styled.div<{ isOpen: boolean }>`
+  display: ${(props) => (props.isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+  position: absolute;
+  top: 36px;
+  right: 0;
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 160px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+`;
+
+const SortDropdownItem = styled.div<{ active?: boolean }>`
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: ${(props) => (props.active ? '#1c3d3f' : 'transparent')};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => (props.active ? '#1c3d3f' : '#3f3f46')};
+  }
 `;
 
 const BoardBody = styled.div`
@@ -761,7 +805,7 @@ async function getBanners(): Promise<BannerPost[]> {
 }
 
 async function fetchPosts({ pageParam = 1, queryKey }: any) {
-  const [_key, path] = queryKey;
+  const [_key, path, sortBy] = queryKey;
   
   const categoryMapping: Record<string, string> = {
     '/notice': '100',
@@ -779,7 +823,7 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   const catId = categoryMapping[path] || '';
   const catQuery = catId ? `&category=${catId}` : '';
   
-  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=4&keyword=&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
+  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}&keyword=&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
     headers: { 'accept': 'text/plain' }
   });
   
@@ -805,8 +849,17 @@ export default function CommunityPage() {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const sortRef = useRef<HTMLDivElement>(null);
   
   const [currentPath, setCurrentPath] = useState('/');
+  const [sortBy, setSortBy] = useState<number>(4);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+
+  const sortOptions = [
+    { label: '최신순', value: 0 },
+    { label: '추천순', value: 1 },
+    { label: '최근 활동순', value: 4 },
+  ];
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -815,6 +868,16 @@ export default function CommunityPage() {
       window.addEventListener('popstate', handlePopState);
       return () => window.removeEventListener('popstate', handlePopState);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const tabTitleMap: Record<string, string> = {
@@ -850,7 +913,7 @@ export default function CommunityPage() {
     isFetchingNextPage,
     status
   } = useInfiniteQuery({
-    queryKey: ['posts', currentPath],
+    queryKey: ['posts', currentPath, sortBy],
     queryFn: fetchPosts,
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.posts && lastPage.posts.length === 24) {
@@ -1092,9 +1155,26 @@ export default function CommunityPage() {
               <BoardTitle>
                 {currentTitle} <BoardTitleSub>28 CLO-SET 게시글</BoardTitleSub>
               </BoardTitle>
-              <BoardHeaderRight>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                <span>최근 활동순 ▼</span>
+              <BoardHeaderRight ref={sortRef}>
+                <SortButton onClick={() => setIsSortOpen(!isSortOpen)}>
+                  {sortOptions.find((opt) => opt.value === sortBy)?.label}
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M7 10l5 5 5-5z"/></svg>
+                </SortButton>
+                
+                <SortDropdownMenu isOpen={isSortOpen}>
+                  {sortOptions.map((option) => (
+                    <SortDropdownItem
+                      key={option.value}
+                      active={sortBy === option.value}
+                      onClick={() => {
+                        setSortBy(option.value);
+                        setIsSortOpen(false);
+                      }}
+                    >
+                      {option.label}
+                    </SortDropdownItem>
+                  ))}
+                </SortDropdownMenu>
               </BoardHeaderRight>
             </BoardHeader>
 
