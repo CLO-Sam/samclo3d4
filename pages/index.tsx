@@ -429,7 +429,7 @@ const TopFilterBar = styled.div`
 const TopFilterLeft = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 `;
 
 const SoftwareSelectWrapper = styled.div`
@@ -494,14 +494,15 @@ const TagList = styled.div`
   gap: 8px;
 `;
 
-const TagBtn = styled.button`
-  background-color: #27272a;
-  border: none;
+const TagBtn = styled.button<{ active?: boolean }>`
+  background-color: ${(props) => (props.active ? '#3f3f46' : '#27272a')};
+  border: 1px solid ${(props) => (props.active ? '#55e6c1' : 'transparent')};
   padding: 6px 12px;
   border-radius: 6px;
-  color: #a1a1aa;
+  color: ${(props) => (props.active ? '#55e6c1' : '#a1a1aa')};
   font-size: 13px;
   cursor: pointer;
+  transition: all 0.2s ease;
 
   &:hover {
     background-color: #3f3f46;
@@ -615,7 +616,7 @@ const SortDropdownMenu = styled.div<{ isOpen: boolean }>`
 const SortDropdownItem = styled.div<{ active?: boolean }>`
   padding: 12px 16px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 15px;
   border-radius: 6px;
   cursor: pointer;
   background-color: ${(props) => (props.active ? '#1c3d3f' : 'transparent')};
@@ -866,7 +867,7 @@ async function getBanners(): Promise<BannerPost[]> {
 }
 
 async function fetchPosts({ pageParam = 1, queryKey }: any) {
-  const [_key, path, sortBy, keyword, software] = queryKey;
+  const [_key, path, sortBy, searchKeyword, software, selectedTag] = queryKey;
   
   const categoryMapping: Record<string, string> = {
     '/notice': '100',
@@ -883,11 +884,16 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   
   const catId = categoryMapping[path] || '';
   const catQuery = catId ? `&category=${catId}` : '';
-  const keywordQuery = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '&keyword=';
+  
+  let combinedKeyword = searchKeyword || '';
+  if (selectedTag) {
+    combinedKeyword = combinedKeyword ? `${combinedKeyword} ${selectedTag}` : selectedTag;
+  }
+  const keywordQuery = combinedKeyword ? `&keyword=${encodeURIComponent(combinedKeyword)}` : '&keyword=';
   
   let tagsQuery = '';
-  if (software === 'CLO') tagsQuery = '&tags=CLO';
-  if (software === 'MarvelousDesigner') tagsQuery = '&tags=MavelousDesigner';
+  if (software === 'CLO') tagsQuery += '&tags=CLO';
+  if (software === 'MarvelousDesigner') tagsQuery += '&tags=MavelousDesigner';
   
   const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}${keywordQuery}${tagsQuery}&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
     headers: { 'accept': 'text/plain' }
@@ -926,6 +932,7 @@ export default function CommunityPage() {
   
   const [selectedSoftware, setSelectedSoftware] = useState('전체');
   const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
+  const [selectedTag, setSelectedTag] = useState(''); // 선택된 세부 태그 상태 추가
 
   const sortOptions = [
     { label: '최신순', value: 0 },
@@ -994,7 +1001,8 @@ export default function CommunityPage() {
     isFetchingNextPage,
     status
   } = useInfiniteQuery({
-    queryKey: ['posts', currentPath, sortBy, activeKeyword, selectedSoftware],
+    // queryKey에 selectedTag 추가하여 태그 변경 시 API 다시 호출
+    queryKey: ['posts', currentPath, sortBy, activeKeyword, selectedSoftware, selectedTag],
     queryFn: fetchPosts,
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.posts && lastPage.posts.length === 24) {
@@ -1249,6 +1257,7 @@ export default function CommunityPage() {
                       active={selectedSoftware === opt}
                       onClick={() => {
                         setSelectedSoftware(opt);
+                        setSelectedTag(''); // 소프트웨어 변경 시 선택된 태그 초기화
                         setIsSoftwareOpen(false);
                       }}
                     >
@@ -1262,7 +1271,13 @@ export default function CommunityPage() {
 
               <TagList>
                 {getTagsForSoftware(selectedSoftware).map(tag => (
-                  <TagBtn key={tag}>{tag}</TagBtn>
+                  <TagBtn 
+                    key={tag}
+                    active={selectedTag === tag}
+                    onClick={() => setSelectedTag(prev => prev === tag ? '' : tag)} // 토글 기능 적용
+                  >
+                    {tag}
+                  </TagBtn>
                 ))}
               </TagList>
             </TopFilterLeft>
