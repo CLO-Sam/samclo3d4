@@ -466,6 +466,16 @@ const SearchInputBox = styled.div`
   align-items: center;
   gap: 8px;
   width: 240px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: #55e6c1; /* 하늘색 테두리 활성화 */
+  }
+
+  &:focus-within svg {
+    fill: #ffffff; /* 아이콘을 흰색으로 강조 */
+  }
 `;
 
 const SearchInput = styled.input`
@@ -805,7 +815,7 @@ async function getBanners(): Promise<BannerPost[]> {
 }
 
 async function fetchPosts({ pageParam = 1, queryKey }: any) {
-  const [_key, path, sortBy] = queryKey;
+  const [_key, path, sortBy, keyword] = queryKey;
   
   const categoryMapping: Record<string, string> = {
     '/notice': '100',
@@ -822,8 +832,9 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   
   const catId = categoryMapping[path] || '';
   const catQuery = catId ? `&category=${catId}` : '';
+  const keywordQuery = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '&keyword=';
   
-  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}&keyword=&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
+  const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}${keywordQuery}&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
     headers: { 'accept': 'text/plain' }
   });
   
@@ -854,6 +865,8 @@ export default function CommunityPage() {
   const [currentPath, setCurrentPath] = useState('/');
   const [sortBy, setSortBy] = useState<number>(4);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [activeKeyword, setActiveKeyword] = useState('');
 
   const sortOptions = [
     { label: '최신순', value: 0 },
@@ -913,7 +926,7 @@ export default function CommunityPage() {
     isFetchingNextPage,
     status
   } = useInfiniteQuery({
-    queryKey: ['posts', currentPath, sortBy],
+    queryKey: ['posts', currentPath, sortBy, activeKeyword],
     queryFn: fetchPosts,
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.posts && lastPage.posts.length === 24) {
@@ -953,6 +966,12 @@ export default function CommunityPage() {
   const handlePathClick = (path: string) => {
     window.history.pushState(null, '', path);
     setCurrentPath(path);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setActiveKeyword(searchInput);
+    }
   };
 
   return (
@@ -1146,7 +1165,12 @@ export default function CommunityPage() {
             </TopFilterLeft>
             <SearchInputBox>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <SearchInput placeholder="전체 게시판에서 검색" />
+              <SearchInput 
+                placeholder={`${currentTitle}에서 검색`} 
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+              />
             </SearchInputBox>
           </TopFilterBar>
 
