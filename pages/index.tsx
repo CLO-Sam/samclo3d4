@@ -37,9 +37,11 @@ interface PostItemData {
 }
 
 const DarkBackground = styled.div`
-  background-color: #0d0d0d;
+  background-color: #131315;
   color: #fff;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const HeaderContainer = styled.header`
@@ -214,7 +216,7 @@ const CarouselCard = styled.div<{ bg: string }>`
   height: 380px;
   border-radius: 16px;
   background: url(${(props) => props.bg}) center/cover no-repeat;
-  background-color: #1a1a1a;
+  background-color: #1c1c1f;
   scroll-snap-align: start;
   flex-shrink: 0;
   position: relative;
@@ -340,7 +342,8 @@ const FlexContainer = styled.div`
   max-width: 1440px;
   margin: 0 auto;
   padding: 20px;
-  gap: 30px;
+  gap: 32px;
+  flex: 1;
 `;
 
 const SidebarWrapper = styled.aside`
@@ -353,7 +356,7 @@ const SidebarWrapper = styled.aside`
 
 const SidebarDivider = styled.hr`
   border: 0;
-  border-top: 1px solid #222;
+  border-top: 1px solid #2b2b30;
   margin: 0;
   width: 100%;
 `;
@@ -365,7 +368,7 @@ const SidebarGroup = styled.div`
 `;
 
 const SidebarGroupTitle = styled.div`
-  color: #666666;
+  color: #a1a1aa;
   font-size: 14px;
   font-weight: bold;
 `;
@@ -374,7 +377,7 @@ const SidebarItemBtn = styled.button<{ active?: boolean }>`
   background: none;
   border: none;
   padding: 0 0 0 16px;
-  color: ${(props) => (props.active ? '#ffffff' : '#aaaaaa')};
+  color: ${(props) => (props.active ? '#ffffff' : '#a1a1aa')};
   font-size: 16px;
   font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
   cursor: pointer;
@@ -409,6 +412,7 @@ const MainPanel = styled.main`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 `;
 
 const TopFilterBar = styled.div`
@@ -425,12 +429,12 @@ const TopFilterLeft = styled.div`
 `;
 
 const SelectBox = styled.div`
-  background-color: #1a1a1a;
-  border: 1px solid #333;
+  background-color: #131315;
+  border: 1px solid #3f3f46;
   padding: 8px 16px;
   border-radius: 20px;
-  color: #aaaaaa;
-  font-size: 14px;
+  color: #a1a1aa;
+  font-size: 13px;
   cursor: pointer;
 `;
 
@@ -440,28 +444,28 @@ const TagList = styled.div`
 `;
 
 const TagBtn = styled.button`
-  background-color: #222;
+  background-color: #27272a;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
-  color: #ccc;
+  border-radius: 6px;
+  color: #a1a1aa;
   font-size: 13px;
   cursor: pointer;
 
   &:hover {
-    background-color: #333;
+    background-color: #3f3f46;
     color: #fff;
   }
 `;
 
 const SearchInputBox = styled.div`
-  background-color: #222;
+  background-color: #27272a;
   border-radius: 20px;
   padding: 8px 16px;
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 260px;
+  width: 240px;
 `;
 
 const SearchInput = styled.input`
@@ -478,9 +482,9 @@ const SearchInput = styled.input`
 `;
 
 const BoardContainer = styled.div`
-  background-color: #161616;
+  background-color: #1c1c1f;
   border-radius: 12px;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #2b2b30;
   display: flex;
   flex-direction: column;
 `;
@@ -489,28 +493,45 @@ const BoardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #2a2a2a;
+  padding: 24px 48px 16px 48px;
+  border-bottom: 1px solid #2b2b30;
 `;
 
 const BoardTitle = styled.h2`
   margin: 0;
   font-size: 16px;
   color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const BoardTitleSub = styled.span`
+  color: #a1a1aa;
+  font-size: 14px;
+  font-weight: normal;
 `;
 
 const BoardHeaderRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
-  color: #aaa;
+  gap: 12px;
+  color: #a1a1aa;
   font-size: 14px;
+`;
+
+const BoardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-top: 24px;
 `;
 
 const PinnedPost = styled.div`
   padding: 16px 20px;
-  background-color: #1f1f1f;
-  border-bottom: 1px solid #2a2a2a;
+  margin: 0 48px 24px 48px;
+  background-color: #27272a;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -529,15 +550,11 @@ const PostListWrapper = styled.div`
 
 const PostListItem = styled.div`
   display: flex;
-  padding: 24px 20px;
-  border-bottom: 1px solid #2a2a2a;
+  padding: 24px 0;
+  margin: 0 48px;
+  border-bottom: 1px solid #2b2b30;
   gap: 24px;
-  transition: background-color 0.2s;
   cursor: pointer;
-
-  &:hover {
-    background-color: #1a1a1a;
-  }
 
   &:last-child {
     border-bottom: none;
@@ -548,16 +565,15 @@ const PostContentArea = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 `;
 
 const SmallBadge = styled.div`
   align-self: flex-start;
-  background-color: rgba(255, 255, 255, 0.08);
-  color: #e0a3b8;
   padding: 4px 10px;
   border-radius: 12px;
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 11px;
+  font-weight: 700;
   margin-bottom: 12px;
 `;
 
@@ -570,8 +586,8 @@ const ItemTitle = styled.h3`
 
 const ItemSummary = styled.p`
   margin: 0 0 16px 0;
-  font-size: 15px;
-  color: #aaaaaa;
+  font-size: 14px;
+  color: #a1a1aa;
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -584,7 +600,7 @@ const ItemMeta = styled.div`
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #888888;
+  color: #71717a;
 `;
 
 const SmallAvatar = styled.div<{ bg: string }>`
@@ -596,11 +612,11 @@ const SmallAvatar = styled.div<{ bg: string }>`
 `;
 
 const ItemThumbnailWrapper = styled.div`
-  width: 140px;
-  height: 100px;
+  width: 160px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #222;
+  background-color: #27272a;
   flex-shrink: 0;
 `;
 
@@ -608,6 +624,59 @@ const ItemThumbnail = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
+`;
+
+const RightSidebarWrapper = styled.aside`
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+`;
+
+const RightSidebarTitle = styled.h3`
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: bold;
+  margin: 0 0 24px 0;
+`;
+
+const PopularPostItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #2b2b30;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+`;
+
+const PopularCategory = styled.div`
+  font-size: 13px;
+  color: #dddddd;
+`;
+
+const PopularTitle = styled.div`
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const PopularMeta = styled.div`
+  font-size: 13px;
+  color: #888888;
 `;
 
 const FloatingWriteBtn = styled.button`
@@ -633,12 +702,32 @@ const FloatingWriteBtn = styled.button`
 
 const getCategoryName = (categoryId: number) => {
   const categoryMap: Record<number, string> = {
-    210: '프로젝트 & 과정',
-    215: '자유 게시판',
-    220: '팁 & 트릭',
-    230: 'QnA',
+    100: '공지사항',
+    110: '유저 스포트라이트',
+    130: '커뮤니티 가이드',
+    210: '자유 게시판',
+    215: '챌린지',
+    220: 'QnA',
+    230: '프로젝트 & 과정',
+    240: '팁 & 트릭',
+    250: '유저 피드백',
+    260: '구인구직',
   };
   return categoryMap[categoryId] || '게시판';
+};
+
+const getCategoryBadgeStyle = (categoryId: number) => {
+  if (categoryId === 100) return { bg: '#2d3748', color: '#d6bcfa' };
+  if (categoryId === 110) return { bg: '#2a4365', color: '#90cdf4' };
+  if (categoryId === 130) return { bg: '#4a5568', color: '#e2e8f0' };
+  if (categoryId === 210) return { bg: '#2e1f32', color: '#e3a0c4' };
+  if (categoryId === 215) return { bg: '#742a2a', color: '#fbb6ce' };
+  if (categoryId === 220) return { bg: '#382329', color: '#d696a6' };
+  if (categoryId === 230) return { bg: '#3b321e', color: '#d8ba76' };
+  if (categoryId === 240) return { bg: '#21332a', color: '#82c39e' };
+  if (categoryId === 250) return { bg: '#2c7a7b', color: '#b2f5ea' };
+  if (categoryId === 260) return { bg: '#276749', color: '#c6f6d5' };
+  return { bg: '#27272a', color: '#a1a1aa' };
 };
 
 function formatTimeAgo(dateString: string) {
@@ -656,6 +745,12 @@ function formatTimeAgo(dateString: string) {
   return `${diffInDays}일 전`;
 }
 
+function formatDateKorean(dateString: string) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+}
+
 async function getBanners(): Promise<BannerPost[]> {
   const res = await fetch('https://test-connect-community.api.clo-set.com/api/post/search?isBanner=true&pageSize=12&sortBy=5&language=2%20%3D%20KO', {
     headers: { 'accept': 'text/plain' }
@@ -669,10 +764,16 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   const [_key, path] = queryKey;
   
   const categoryMapping: Record<string, string> = {
-    '/general': '215',
-    '/project-and-steps': '210',
-    '/tips-and-tricks': '220',
-    '/qna': '230'
+    '/notice': '100',
+    '/user-spotlight': '110',
+    '/general': '210',
+    '/challenge': '215',
+    '/project-and-steps': '230',
+    '/tips-and-tricks': '240',
+    '/qna': '220',
+    '/user-feedback': '250',
+    '/job-board': '260',
+    '/community-guide': '130',
   };
   
   const catId = categoryMapping[path] || '';
@@ -685,6 +786,19 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   if (!res.ok) throw new Error('Failed to fetch posts');
   const data = await res.json();
   return data;
+}
+
+async function fetchPopularPosts() {
+  const res = await fetch('https://test-connect-community.api.clo-set.com/api/post/search?sortBy=4&keyword=&pageSize=24&language=ko', {
+    headers: { 'accept': 'text/plain' }
+  });
+  if (!res.ok) throw new Error('Failed to fetch popular posts');
+  const data = await res.json();
+  
+  if (!data.posts) return [];
+  
+  const sortedPosts = data.posts.sort((a: PostItemData, b: PostItemData) => b.likesCount - a.likesCount);
+  return sortedPosts.slice(0, 4);
 }
 
 export default function CommunityPage() {
@@ -722,6 +836,11 @@ export default function CommunityPage() {
   const { data: banners } = useQuery({
     queryKey: ['banners'],
     queryFn: getBanners,
+  });
+
+  const { data: popularPosts } = useQuery({
+    queryKey: ['popularPosts'],
+    queryFn: fetchPopularPosts,
   });
 
   const {
@@ -963,85 +1082,111 @@ export default function CommunityPage() {
               </TagList>
             </TopFilterLeft>
             <SearchInputBox>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="#888"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
               <SearchInput placeholder="전체 게시판에서 검색" />
             </SearchInputBox>
           </TopFilterBar>
 
           <BoardContainer>
             <BoardHeader>
-              <BoardTitle>{currentTitle}</BoardTitle>
+              <BoardTitle>
+                {currentTitle} <BoardTitleSub>28 CLO-SET 게시글</BoardTitleSub>
+              </BoardTitle>
               <BoardHeaderRight>
-                <span>뷰 ▼</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                 <span>최근 활동순 ▼</span>
               </BoardHeaderRight>
             </BoardHeader>
 
-            <PinnedPost>
-              <PinnedLeft>
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="#aaa"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
-                <span style={{ color: '#00e5ff', fontSize: '13px' }}>팁 & 트릭</span>
-                <span style={{ color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>🎉 300 Free Patterns for You!</span>
-              </PinnedLeft>
-              <div style={{ color: '#aaa' }}>{'< >'}</div>
-            </PinnedPost>
-
-            <PostListWrapper>
-              {status === 'pending' ? (
-                <div style={{ padding: '24px', color: '#aaa', textAlign: 'center' }}>데이터를 불러오는 중입니다...</div>
-              ) : status === 'error' ? (
-                <div style={{ padding: '24px', color: '#ff6b6b', textAlign: 'center' }}>데이터를 불러오지 못했습니다.</div>
-              ) : (
-                postData.pages.map((page, pageIndex) => (
-                  <div key={pageIndex}>
-                    {page.posts && page.posts.map((post: PostItemData) => {
-                      const badgeBg = post.category === 230 ? 'rgba(255,100,150,0.1)' : 'rgba(255,255,255,0.08)';
-                      const badgeColor = post.category === 230 ? '#ffb3c6' : '#ccc';
-                      const avatarImg = post.creatorThumbnailPath || `https://picsum.photos/seed/${post.creatorName}/50/50`;
-                      const thumbImg = post.postThumbnail?.path;
-
-                      return (
-                        <PostListItem key={post.postId}>
-                          <PostContentArea>
-                            <SmallBadge style={{ backgroundColor: badgeBg, color: badgeColor }}>
-                              {getCategoryName(post.category)}
-                            </SmallBadge>
-                            <ItemTitle>{post.title}</ItemTitle>
-                            <ItemSummary>{post.summary}</ItemSummary>
-                            
-                            <ItemMeta>
-                              <SmallAvatar bg={avatarImg} />
-                              <span>{post.creatorName}</span>
-                              <span>·</span>
-                              <span>{formatTimeAgo(post.registeredDate)}</span>
-                              <span>·</span>
-                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                              <span>{post.viewCount}</span>
-                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
-                              <span>{post.likesCount}</span>
-                              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                              <span>{post.commentsCount}</span>
-                            </ItemMeta>
-                          </PostContentArea>
-
-                          {thumbImg && (
-                            <ItemThumbnailWrapper>
-                              <ItemThumbnail src={thumbImg} alt="thumbnail" />
-                            </ItemThumbnailWrapper>
-                          )}
-                        </PostListItem>
-                      );
-                    })}
+            <BoardBody>
+              <PinnedPost>
+                <PinnedLeft>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="#a1a1aa" style={{ transform: 'rotate(-45deg)' }}>
+                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                  </svg>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span style={{ color: '#82c39e', fontSize: '12px', fontWeight: 'bold' }}>팁 & 트릭</span>
+                    <span style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>순서확인용 250916</span>
                   </div>
-                ))
-              )}
-              
-              <div ref={loadMoreRef} style={{ height: '20px' }}>
-                {isFetchingNextPage && <div style={{ textAlign: 'center', padding: '20px', color: '#aaa' }}>추가 데이터를 불러오는 중...</div>}
-              </div>
-            </PostListWrapper>
+                </PinnedLeft>
+                <div style={{ color: '#a1a1aa', display: 'flex', gap: '16px', fontWeight: 'bold' }}>
+                  <span style={{ cursor: 'pointer' }}>{'<'}</span>
+                  <span style={{ cursor: 'pointer' }}>{'>'}</span>
+                </div>
+              </PinnedPost>
+
+              <PostListWrapper>
+                {status === 'pending' ? (
+                  <div style={{ padding: '24px', color: '#a1a1aa', textAlign: 'center' }}>데이터를 불러오는 중...</div>
+                ) : status === 'error' ? (
+                  <div style={{ padding: '24px', color: '#ff6b6b', textAlign: 'center' }}>데이터를 불러오지 못했습니다.</div>
+                ) : (
+                  postData.pages.map((page, pageIndex) => (
+                    <div key={pageIndex}>
+                      {page.posts && page.posts.map((post: PostItemData) => {
+                        const badgeStyle = getCategoryBadgeStyle(post.category);
+                        const avatarImg = post.creatorThumbnailPath || `https://picsum.photos/seed/${post.creatorName}/50/50`;
+                        const thumbImg = post.postThumbnail?.path;
+
+                        return (
+                          <PostListItem key={post.postId}>
+                            <PostContentArea>
+                              <SmallBadge style={{ backgroundColor: badgeStyle.bg, color: badgeStyle.color }}>
+                                {getCategoryName(post.category)}
+                              </SmallBadge>
+                              <ItemTitle>{post.title}</ItemTitle>
+                              <ItemSummary>{post.summary}</ItemSummary>
+                              
+                              <ItemMeta>
+                                <SmallAvatar bg={avatarImg} />
+                                <span>{post.creatorName}</span>
+                                <span>·</span>
+                                <span>{formatTimeAgo(post.registeredDate)}</span>
+                                <span style={{ marginLeft: '12px' }}></span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                <span>{post.viewCount}</span>
+                                <span style={{ marginLeft: '4px' }}></span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                                <span>{post.likesCount}</span>
+                                <span style={{ marginLeft: '4px' }}></span>
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                                <span>{post.commentsCount}</span>
+                              </ItemMeta>
+                            </PostContentArea>
+
+                            {thumbImg && (
+                              <ItemThumbnailWrapper>
+                                <ItemThumbnail src={thumbImg} alt="thumbnail" />
+                              </ItemThumbnailWrapper>
+                            )}
+                          </PostListItem>
+                        );
+                      })}
+                    </div>
+                  ))
+                )}
+                
+                <div ref={loadMoreRef} style={{ height: '20px' }}>
+                  {isFetchingNextPage && <div style={{ textAlign: 'center', padding: '20px', color: '#a1a1aa' }}>추가 데이터를 불러오는 중...</div>}
+                </div>
+              </PostListWrapper>
+            </BoardBody>
           </BoardContainer>
         </MainPanel>
+
+        <RightSidebarWrapper>
+          <RightSidebarTitle>인기 게시글</RightSidebarTitle>
+          
+          {popularPosts && popularPosts.map((post: PostItemData) => (
+            <PopularPostItem key={post.postId}>
+              <PopularCategory>{getCategoryName(post.category)}</PopularCategory>
+              <PopularTitle>{post.title}</PopularTitle>
+              <PopularMeta>
+                {post.creatorName} | {formatDateKorean(post.registeredDate)}
+              </PopularMeta>
+            </PopularPostItem>
+          ))}
+        </RightSidebarWrapper>
       </FlexContainer>
 
       <FloatingWriteBtn>글쓰기</FloatingWriteBtn>
