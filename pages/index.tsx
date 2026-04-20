@@ -522,11 +522,11 @@ const SearchInputBox = styled.div`
   transition: border-color 0.2s ease;
 
   &:focus-within {
-    border-color: #55e6c1; /* 하늘색 테두리 활성화 */
+    border-color: #55e6c1;
   }
 
   &:focus-within svg {
-    fill: #ffffff; /* 아이콘을 흰색으로 강조 */
+    fill: #ffffff;
   }
 `;
 
@@ -866,6 +866,15 @@ async function getBanners(): Promise<BannerPost[]> {
   return data.posts || [];
 }
 
+async function fetchPinnedPosts(): Promise<PostItemData[]> {
+  const res = await fetch('https://test-connect-community.api.clo-set.com/api/post/pins?pinType=20&language=ko', {
+    headers: { 'accept': 'text/plain' }
+  });
+  if (!res.ok) throw new Error('Failed to fetch pinned posts');
+  const data = await res.json();
+  return data.posts || data || [];
+}
+
 async function fetchPosts({ pageParam = 1, queryKey }: any) {
   const [_key, path, sortBy, searchKeyword, software, selectedTag] = queryKey;
   
@@ -885,15 +894,18 @@ async function fetchPosts({ pageParam = 1, queryKey }: any) {
   const catId = categoryMapping[path] || '';
   const catQuery = catId ? `&category=${catId}` : '';
   
-  let combinedKeyword = searchKeyword || '';
+  let finalKeyword = searchKeyword || '';
   if (selectedTag) {
-    combinedKeyword = combinedKeyword ? `${combinedKeyword} ${selectedTag}` : selectedTag;
+    finalKeyword = finalKeyword ? `${finalKeyword} ${selectedTag}` : selectedTag;
   }
-  const keywordQuery = combinedKeyword ? `&keyword=${encodeURIComponent(combinedKeyword)}` : '&keyword=';
+  const keywordQuery = finalKeyword ? `&keyword=${encodeURIComponent(finalKeyword)}` : '&keyword=';
   
   let tagsQuery = '';
-  if (software === 'CLO') tagsQuery += '&tags=CLO';
-  if (software === 'MarvelousDesigner') tagsQuery += '&tags=MavelousDesigner';
+  if (software === 'CLO') {
+    tagsQuery = '&tags=CLO';
+  } else if (software === 'MarvelousDesigner') {
+    tagsQuery = '&tags=MavelousDesigner';
+  }
   
   const res = await fetch(`https://test-connect-community.api.clo-set.com/api/post/search?sortBy=${sortBy}${keywordQuery}${tagsQuery}&pageSize=24&language=ko&pageNumber=${pageParam}${catQuery}`, {
     headers: { 'accept': 'text/plain' }
@@ -923,6 +935,7 @@ export default function CommunityPage() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const sortRef = useRef<HTMLDivElement>(null);
   const softwareRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   const [currentPath, setCurrentPath] = useState('/');
   const [sortBy, setSortBy] = useState<number>(4);
@@ -932,7 +945,8 @@ export default function CommunityPage() {
   
   const [selectedSoftware, setSelectedSoftware] = useState('전체');
   const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
-  const [selectedTag, setSelectedTag] = useState(''); // 선택된 세부 태그 상태 추가
+  const [selectedTag, setSelectedTag] = useState('');
+  const [currentPinnedIndex, setCurrentPinnedIndex] = useState(0);
 
   const sortOptions = [
     { label: '최신순', value: 0 },
@@ -946,14 +960,45 @@ export default function CommunityPage() {
     return ['CLO-SET', 'CONNECT', 'EveryWear', 'LiveSync'];
   };
 
+  // 직접 주소로 접근했을 때 대응 (Next.js 라우터 준비 완료 시점)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentPath(window.location.pathname);
-      const handlePopState = () => setCurrentPath(window.location.pathname);
-      window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
+    if (router.isReady) {
+      const path = router.asPath.split('?')[0];
+      setCurrentPath(path || '/');
+
+      // 주소창에 파라미터가 있다면 상태값 복원
+      const queryTags = router.query.tags as string;
+      if (queryTags === 'CLO') setSelectedSoftware('CLO');
+      if (queryTags === 'MavelousDesigner') setSelectedSoftware('MarvelousDesigner');
+      
+      const queryKeyword = router.query.keyword as string;
+      if (queryKeyword) {
+        setActiveKeyword(queryKeyword);
+        setSearchInput(queryKeyword);
+      }
     }
-  }, []);
+  }, [router.isReady, router.asPath]);
+
+  // 상태 변화 시 주소창 URL 업데이트 (브라우저 히스토리 기록 X, 표시만 변경)
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const params = new URLSearchParams();
+    
+    if (selectedSoftware === 'CLO') params.set('tags', 'CLO');
+    if (selectedSoftware === 'MarvelousDesigner') params.set('tags', 'MavelousDesigner');
+    
+    let finalKeyword = activeKeyword;
+    if (selectedTag) {
+      finalKeyword = finalKeyword ? `${finalKeyword} ${selectedTag}` : selectedTag;
+    }
+    if (finalKeyword) params.set('keyword', finalKeyword);
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${currentPath}?${queryString}` : currentPath;
+
+    window.history.replaceState(null, '', newUrl);
+  }, [currentPath, selectedSoftware, activeKeyword, selectedTag, router.isReady]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -994,6 +1039,11 @@ export default function CommunityPage() {
     queryFn: fetchPopularPosts,
   });
 
+  const { data: pinnedPosts } = useQuery({
+    queryKey: ['pinnedPosts'],
+    queryFn: fetchPinnedPosts,
+  });
+
   const {
     data: postData,
     fetchNextPage,
@@ -1001,7 +1051,6 @@ export default function CommunityPage() {
     isFetchingNextPage,
     status
   } = useInfiniteQuery({
-    // queryKey에 selectedTag 추가하여 태그 변경 시 API 다시 호출
     queryKey: ['posts', currentPath, sortBy, activeKeyword, selectedSoftware, selectedTag],
     queryFn: fetchPosts,
     getNextPageParam: (lastPage, pages) => {
@@ -1040,7 +1089,8 @@ export default function CommunityPage() {
   };
 
   const handlePathClick = (path: string) => {
-    window.history.pushState(null, '', path);
+    // Next.js 라우터로 페이지 리로드 없이 주소 변경 (기존 쿼리 파라미터 유지)
+    router.push({ pathname: path, query: router.query }, undefined, { shallow: true });
     setCurrentPath(path);
   };
 
@@ -1048,6 +1098,31 @@ export default function CommunityPage() {
     if (e.key === 'Enter') {
       setActiveKeyword(searchInput);
     }
+  };
+
+  const handleTagClick = (tag: string) => {
+    const newTag = selectedTag === tag ? '' : tag;
+    setSelectedTag(newTag);
+    
+    // 포커싱 및 텍스트 렌더링
+    setSearchInput(newTag);
+    setActiveKeyword(newTag);
+    
+    if (newTag) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 0);
+    }
+  };
+
+  const handlePrevPin = () => {
+    if (!pinnedPosts?.length) return;
+    setCurrentPinnedIndex((prev) => (prev === 0 ? pinnedPosts.length - 1 : prev - 1));
+  };
+
+  const handleNextPin = () => {
+    if (!pinnedPosts?.length) return;
+    setCurrentPinnedIndex((prev) => (prev === pinnedPosts.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -1257,7 +1332,9 @@ export default function CommunityPage() {
                       active={selectedSoftware === opt}
                       onClick={() => {
                         setSelectedSoftware(opt);
-                        setSelectedTag(''); // 소프트웨어 변경 시 선택된 태그 초기화
+                        setSearchInput('');
+                        setActiveKeyword('');
+                        setSelectedTag('');
                         setIsSoftwareOpen(false);
                       }}
                     >
@@ -1274,7 +1351,7 @@ export default function CommunityPage() {
                   <TagBtn 
                     key={tag}
                     active={selectedTag === tag}
-                    onClick={() => setSelectedTag(prev => prev === tag ? '' : tag)} // 토글 기능 적용
+                    onClick={() => handleTagClick(tag)}
                   >
                     {tag}
                   </TagBtn>
@@ -1285,6 +1362,7 @@ export default function CommunityPage() {
             <SearchInputBox>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
               <SearchInput 
+                ref={searchInputRef}
                 placeholder={`${currentTitle}에서 검색`} 
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
@@ -1297,7 +1375,7 @@ export default function CommunityPage() {
             <BoardHeader>
               <BoardTitle>
                 {currentTitle}
-                {activeKeyword && (
+                {(activeKeyword || selectedTag) && (
                   <BoardTitleSub>
                     {postData?.pages?.[0]?.totalCount ?? postData?.pages?.[0]?.posts?.length ?? 0} CLO-SET 게시글
                   </BoardTitleSub>
@@ -1327,21 +1405,29 @@ export default function CommunityPage() {
             </BoardHeader>
 
             <BoardBody>
-              <PinnedPost>
-                <PinnedLeft>
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="#a1a1aa" style={{ transform: 'rotate(-45deg)' }}>
-                    <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
-                  </svg>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <span style={{ color: '#82c39e', fontSize: '12px', fontWeight: 'bold' }}>팁 & 트릭</span>
-                    <span style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>순서확인용 250916</span>
-                  </div>
-                </PinnedLeft>
-                <div style={{ color: '#a1a1aa', display: 'flex', gap: '16px', fontWeight: 'bold' }}>
-                  <span style={{ cursor: 'pointer' }}>{'<'}</span>
-                  <span style={{ cursor: 'pointer' }}>{'>'}</span>
-                </div>
-              </PinnedPost>
+              {pinnedPosts && pinnedPosts.length > 0 && (
+                <PinnedPost>
+                  <PinnedLeft>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="#a1a1aa" style={{ transform: 'rotate(-45deg)' }}>
+                      <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                    </svg>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ color: getCategoryBadgeStyle(pinnedPosts[currentPinnedIndex].category).color, fontSize: '12px', fontWeight: 'bold' }}>
+                        {getCategoryName(pinnedPosts[currentPinnedIndex].category)}
+                      </span>
+                      <span style={{ color: '#fff', fontSize: '15px', fontWeight: 'bold' }}>
+                        {pinnedPosts[currentPinnedIndex].title}
+                      </span>
+                    </div>
+                  </PinnedLeft>
+                  {pinnedPosts.length > 1 && (
+                    <div style={{ color: '#a1a1aa', display: 'flex', gap: '16px', fontWeight: 'bold', userSelect: 'none' }}>
+                      <span style={{ cursor: 'pointer' }} onClick={handlePrevPin}>{'<'}</span>
+                      <span style={{ cursor: 'pointer' }} onClick={handleNextPin}>{'>'}</span>
+                    </div>
+                  )}
+                </PinnedPost>
+              )}
 
               <PostListWrapper>
                 {status === 'pending' ? (
