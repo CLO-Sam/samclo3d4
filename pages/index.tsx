@@ -1153,6 +1153,7 @@ const PinnedPost = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
 
   @media (max-width: 1439px) {
     margin: 0 24px 24px 24px;
@@ -1578,6 +1579,10 @@ export default function CommunityPage() {
   // Mobile Filter Modal State
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
+  // Raw Post Modal State
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [prevUrl, setPrevUrl] = useState('');
+
   const sortOptions = [
     { label: '최신순', value: 0 },
     { label: '추천순', value: 1 },
@@ -1600,7 +1605,7 @@ export default function CommunityPage() {
   }, []);
 
   useEffect(() => {
-    if (router.isReady) {
+    if (router.isReady && !selectedPost) {
       const path = router.asPath.split('?')[0];
       setCurrentPath(path || '/');
 
@@ -1614,10 +1619,10 @@ export default function CommunityPage() {
         setSearchInput(queryKeyword);
       }
     }
-  }, [router.isReady, router.asPath]);
+  }, [router.isReady, router.asPath, selectedPost]);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady || selectedPost) return;
 
     const params = new URLSearchParams();
     
@@ -1634,7 +1639,7 @@ export default function CommunityPage() {
     const newUrl = queryString ? `${currentPath}?${queryString}` : currentPath;
 
     window.history.replaceState(null, '', newUrl);
-  }, [currentPath, selectedSoftware, activeKeyword, selectedTag, router.isReady]);
+  }, [currentPath, selectedSoftware, activeKeyword, selectedTag, router.isReady, selectedPost]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -1788,6 +1793,18 @@ export default function CommunityPage() {
   const handleNextPin = () => {
     if (!pinnedPosts?.length) return;
     setCurrentPinnedIndex((prev) => (prev === pinnedPosts.length - 1 ? 0 : prev + 1));
+  };
+
+  // --- Post Modal Handlers ---
+  const handlePostClick = (post: any) => {
+    setPrevUrl(window.location.pathname + window.location.search);
+    setSelectedPost(post);
+    window.history.pushState(null, '', `/community/post/${post.postId}`);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPost(null);
+    window.history.pushState(null, '', prevUrl);
   };
 
   const totalPostCount = postData?.pages?.[0]?.totalCount ?? postData?.pages?.[0]?.posts?.length ?? 0;
@@ -2000,7 +2017,7 @@ export default function CommunityPage() {
             const avatarImage = item.creatorThumbnailPath || `https://picsum.photos/seed/${item.creatorName}/100/100`;
             
             return (
-              <CarouselCard key={item.postId} bg={bgImage}>
+              <CarouselCard key={item.postId} bg={bgImage} onClick={() => handlePostClick(item)}>
                 <CardHoverOverlay className="hover-content">
                   <CategoryBadge>{getCategoryName(item.category)}</CategoryBadge>
                   
@@ -2218,7 +2235,6 @@ export default function CommunityPage() {
             <BoardHeader>
               <BoardTitle>
                 <BoardTitleText>{currentTitle}</BoardTitleText>
-                {/* 모바일에서는 조건 없이 항상 표시되도록 변경 */}
                 <BoardTitleSub alwaysShowMobile>
                   {totalPostCount} 게시글
                 </BoardTitleSub>
@@ -2248,7 +2264,7 @@ export default function CommunityPage() {
 
             <BoardBody>
               {pinnedPosts && pinnedPosts.length > 0 && (
-                <PinnedPost>
+                <PinnedPost onClick={() => handlePostClick(pinnedPosts[currentPinnedIndex])}>
                   <PinnedLeft>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="#a1a1aa" style={{ transform: 'rotate(-45deg)' }}>
                       <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
@@ -2264,8 +2280,8 @@ export default function CommunityPage() {
                   </PinnedLeft>
                   {pinnedPosts.length > 1 && (
                     <div style={{ color: '#a1a1aa', display: 'flex', gap: '16px', fontWeight: 'bold', userSelect: 'none' }}>
-                      <span style={{ cursor: 'pointer' }} onClick={handlePrevPin}>{'<'}</span>
-                      <span style={{ cursor: 'pointer' }} onClick={handleNextPin}>{'>'}</span>
+                      <span style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); handlePrevPin(); }}>{'<'}</span>
+                      <span style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); handleNextPin(); }}>{'>'}</span>
                     </div>
                   )}
                 </PinnedPost>
@@ -2285,7 +2301,7 @@ export default function CommunityPage() {
                         const thumbImg = post.postThumbnail?.path;
 
                         return (
-                          <PostListItem key={post.postId}>
+                          <PostListItem key={post.postId} onClick={() => handlePostClick(post)}>
                             <PostContentArea>
                               <SmallBadge style={{ backgroundColor: badgeStyle.bg, color: badgeStyle.color }}>
                                 {getCategoryName(post.category)}
@@ -2334,7 +2350,7 @@ export default function CommunityPage() {
           <RightSidebarTitle>인기 게시글</RightSidebarTitle>
           
           {popularPosts && popularPosts.map((post: PostItemData) => (
-            <PopularPostItem key={post.postId}>
+            <PopularPostItem key={post.postId} onClick={() => handlePostClick(post)}>
               <PopularCategory>{getCategoryName(post.category)}</PopularCategory>
               <PopularTitle>{post.title}</PopularTitle>
               <PopularMeta>
@@ -2377,6 +2393,44 @@ export default function CommunityPage() {
           </svg>
         </LanguageSelectWrapper>
       </FooterContainer>
+
+      {/* --- Raw Post Modal --- */}
+      {selectedPost && (
+        <div 
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+          onClick={handleCloseModal}
+        >
+          <div 
+            style={{ 
+              backgroundColor: '#111', padding: '24px', 
+              maxWidth: '80%', maxHeight: '80vh', overflowY: 'auto',
+              borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '16px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={handleCloseModal} 
+                style={{ background: 'none', border: '1px solid #333', color: '#fff', padding: '4px 12px', cursor: 'pointer', borderRadius: '4px' }}
+              >
+                닫기
+              </button>
+            </div>
+            <h2 style={{ color: '#fff', margin: 0, fontSize: '20px' }}>{selectedPost.title}</h2>
+            {selectedPost.postThumbnail?.path && (
+              <img 
+                src={selectedPost.postThumbnail.path} 
+                alt="thumbnail" 
+                style={{ width: '100%', height: 'auto', objectFit: 'contain', borderRadius: '4px' }} 
+              />
+            )}
+          </div>
+        </div>
+      )}
     </DarkBackground>
   );
 }
