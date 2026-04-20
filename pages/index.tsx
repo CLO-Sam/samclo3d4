@@ -42,6 +42,7 @@ const DarkBackground = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-bottom: 32px;
 `;
 
 const HeaderContainer = styled.header`
@@ -58,6 +59,51 @@ const LeftNavGroup = styled.div`
   display: flex;
   align-items: center;
   gap: 32px;
+`;
+
+const DesktopNavGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 32px;
+
+  @media (max-width: 1199px) {
+    display: none;
+  }
+`;
+
+const DesktopAuthGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 1199px) {
+    display: none;
+  }
+`;
+
+const MobileNavGroup = styled.div`
+  display: none;
+  align-items: center;
+  gap: 20px;
+
+  @media (max-width: 1199px) {
+    display: flex;
+  }
+`;
+
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  &:hover {
+    color: #a1a1aa;
+  }
 `;
 
 const ConnectLogo = styled.span`
@@ -151,12 +197,6 @@ const VerticalDivider = styled.div`
   background-color: #333333;
 `;
 
-const RightAuthGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 20px;
-`;
-
 const LoginLink = styled(Link)`
   color: #ffffff;
   text-decoration: none;
@@ -189,6 +229,251 @@ const GridIconBtn = styled.button`
     color: #ffffff;
   }
 `;
+
+// --- Mobile Drawer Styled Components ---
+const DrawerBackdrop = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  display: ${(props) => (props.isOpen ? 'block' : 'none')};
+  transition: opacity 0.3s ease;
+`;
+
+const DrawerContainer = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  background-color: #27272a;
+  z-index: 1000;
+  transform: translateX(${(props) => (props.isOpen ? '0' : '100%')});
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.5);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const DrawerHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #3f3f46;
+`;
+
+const DrawerProfileArea = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const DrawerAvatar = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #3f3f46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a1a1aa;
+`;
+
+const DrawerLoginBtn = styled.button`
+  background: transparent;
+  border: 1px solid #52525b;
+  color: #ffffff;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #3f3f46;
+  }
+`;
+
+const DrawerItem = styled(Link)<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  color: ${(props) => (props.active ? '#ffffff' : '#d4d4d8')};
+  text-decoration: none;
+  font-size: 15px;
+  background-color: ${(props) => (props.active ? '#3f3f46' : 'transparent')};
+  border-left: 3px solid ${(props) => (props.active ? '#55e6c1' : 'transparent')};
+
+  &:hover {
+    background-color: #3f3f46;
+  }
+`;
+
+const DrawerAccordionBtn = styled.div<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  color: ${(props) => (props.active ? '#ffffff' : '#d4d4d8')};
+  font-size: 15px;
+  cursor: pointer;
+  background-color: ${(props) => (props.active ? '#3f3f46' : 'transparent')};
+  border-left: 3px solid ${(props) => (props.active ? '#55e6c1' : 'transparent')};
+
+  &:hover {
+    background-color: #3f3f46;
+  }
+`;
+
+const DrawerSubMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  background-color: #1c1c1f;
+`;
+
+const DrawerSubItem = styled(Link)<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  padding: 14px 24px 14px 40px;
+  color: ${(props) => (props.active ? '#ffffff' : '#a1a1aa')};
+  text-decoration: none;
+  font-size: 14px;
+  border-left: 3px solid ${(props) => (props.active ? '#55e6c1' : 'transparent')};
+
+  &:hover {
+    color: #ffffff;
+    background-color: #27272a;
+  }
+`;
+
+// --- Mobile Filter Modal Styled Components ---
+const FilterModalOverlay = styled.div<{ isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  z-index: 2000;
+  display: ${(props) => (props.isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+`;
+
+const FilterModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+`;
+
+const FilterModalTitle = styled.h2`
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+  letter-spacing: 2px;
+`;
+
+const FilterModalBody = styled.div`
+  flex: 1;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const FilterBreadcrumb = styled.div`
+  color: #a1a1aa;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  
+  span.active {
+    color: #fff;
+  }
+`;
+
+const FilterSectionTitle = styled.div`
+  color: #a1a1aa;
+  font-size: 14px;
+  margin-bottom: 16px;
+`;
+
+const FilterGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+`;
+
+const FilterCheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+`;
+
+const FilterCheckboxInput = styled.input`
+  display: none;
+`;
+
+const FilterCustomCheck = styled.div<{ checked: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: ${(props) => (props.checked ? '#55e6c1' : '#3f3f46')};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    display: ${(props) => (props.checked ? 'block' : 'none')};
+    width: 4px;
+    height: 10px;
+    border: solid #131315;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+  }
+`;
+
+const FilterDivider = styled.div`
+  height: 1px;
+  background-color: #2b2b30;
+  width: 100%;
+  margin-bottom: 24px;
+`;
+
+const FilterResetBtn = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 0;
+  font-weight: bold;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
 
 const CarouselWrapper = styled.div`
   position: relative;
@@ -345,9 +630,15 @@ const FlexContainer = styled.div`
   width: 100%;
   box-sizing: border-box;
   margin: 0 auto;
-  padding: 20px;
+  padding: 0 96px 232px; 
   gap: 32px;
   flex: 1;
+
+  @media (max-width: 1439px) {
+    flex-direction: column;
+    padding: 0 0 232px;
+    gap: 0;
+  }
 `;
 
 const SidebarWrapper = styled.aside`
@@ -356,6 +647,19 @@ const SidebarWrapper = styled.aside`
   flex-direction: column;
   gap: 20px;
   flex-shrink: 0;
+
+  @media (max-width: 1439px) {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 20px;
+    border-bottom: 1px solid #2b2b30;
+    gap: 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 `;
 
 const SidebarDivider = styled.hr`
@@ -363,18 +667,31 @@ const SidebarDivider = styled.hr`
   border-top: 1px solid #2b2b30;
   margin: 0;
   width: 100%;
+
+  @media (max-width: 1439px) {
+    display: none;
+  }
 `;
 
 const SidebarGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 1439px) {
+    flex-direction: row;
+    gap: 0;
+  }
 `;
 
 const SidebarGroupTitle = styled.div`
   color: #a1a1aa;
   font-size: 14px;
   font-weight: bold;
+
+  @media (max-width: 1439px) {
+    display: none;
+  }
 `;
 
 const SidebarItemBtn = styled.button<{ active?: boolean }>`
@@ -409,6 +726,43 @@ const SidebarItemBtn = styled.button<{ active?: boolean }>`
       background-color: #ffffff;
     }
   `}
+
+  @media (max-width: 1439px) {
+    padding: 16px 20px;
+    height: auto;
+    white-space: nowrap;
+
+    &::before {
+      display: none;
+    }
+
+    ${(props) =>
+      props.active &&
+      `
+      &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #ffffff;
+      }
+    `}
+  }
+`;
+
+const DesktopOnly = styled.span`
+  @media (max-width: 1439px) {
+    display: none;
+  }
+`;
+
+const MobileOnly = styled.span`
+  display: none;
+  @media (max-width: 1439px) {
+    display: inline;
+  }
 `;
 
 const MainPanel = styled.main`
@@ -417,6 +771,10 @@ const MainPanel = styled.main`
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+
+  @media (max-width: 1439px) {
+    padding: 24px 20px; 
+  }
 `;
 
 const TopFilterBar = styled.div`
@@ -425,6 +783,11 @@ const TopFilterBar = styled.div`
   align-items: center;
   margin-bottom: 8px;
   gap: 16px;
+
+  @media (max-width: 767px) {
+    flex-direction: row;
+    gap: 12px;
+  }
 `;
 
 const TopFilterScrollWrapper = styled.div`
@@ -434,6 +797,10 @@ const TopFilterScrollWrapper = styled.div`
   min-width: 0;
   align-items: center;
   overflow: hidden;
+
+  @media (max-width: 767px) {
+    display: none; /* 모바일에서 숨김 처리 */
+  }
 `;
 
 const TopFilterScrollContainer = styled.div`
@@ -575,7 +942,17 @@ const TagBtn = styled.button<{ active?: boolean }>`
   }
 `;
 
-const SearchInputBox = styled.div`
+const SearchAreaMobileWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  @media (max-width: 767px) {
+    width: 100%;
+  }
+`;
+
+const SearchInputBox = styled.div<{ hasValue?: boolean }>`
   background-color: #27272a;
   border-radius: 20px;
   padding: 8px 16px;
@@ -584,15 +961,19 @@ const SearchInputBox = styled.div`
   gap: 8px;
   width: 240px;
   flex-shrink: 0;
-  border: 1px solid transparent;
+  border: 1px solid ${(props) => (props.hasValue ? '#55e6c1' : 'transparent')};
   transition: border-color 0.2s ease;
 
   &:focus-within {
-    border-color: #55e6c1; /* 하늘색 테두리 활성화 */
+    border-color: #55e6c1; 
   }
 
-  &:focus-within svg {
-    fill: #ffffff; /* 아이콘을 흰색으로 강조 */
+  &:focus-within svg.search-icon, 
+  ${(props) => props.hasValue ? '& svg.search-icon { fill: #ffffff; }' : ''}
+
+  @media (max-width: 767px) {
+    flex: 1;
+    width: auto;
   }
 `;
 
@@ -609,12 +990,52 @@ const SearchInput = styled.input`
   }
 `;
 
+const ClearInputBtn = styled.button`
+  background: none;
+  border: none;
+  color: #a1a1aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    color: #ffffff;
+  }
+`;
+
+const FilterIconBtn = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 767px) {
+    display: flex;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
 const BoardContainer = styled.div`
   background-color: #1c1c1f;
   border-radius: 12px;
   border: 1px solid #2b2b30;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 767px) {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+  }
 `;
 
 const BoardHeader = styled.div`
@@ -623,6 +1044,14 @@ const BoardHeader = styled.div`
   align-items: center;
   padding: 24px 48px 16px 48px;
   border-bottom: 1px solid #2b2b30;
+
+  @media (max-width: 1439px) {
+    padding: 20px 24px 16px 24px;
+  }
+
+  @media (max-width: 767px) {
+    padding: 16px 0;
+  }
 `;
 
 const BoardTitle = styled.h2`
@@ -635,10 +1064,23 @@ const BoardTitle = styled.h2`
   gap: 8px;
 `;
 
-const BoardTitleSub = styled.span`
+const BoardTitleText = styled.span`
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+const BoardTitleSub = styled.span<{ alwaysShowMobile?: boolean }>`
   color: #a1a1aa;
   font-size: 14px;
   font-weight: normal;
+
+  @media (max-width: 767px) {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    display: ${(props) => (props.alwaysShowMobile ? 'inline' : 'none')};
+  }
 `;
 
 const BoardHeaderRight = styled.div`
@@ -697,6 +1139,10 @@ const BoardBody = styled.div`
   display: flex;
   flex-direction: column;
   padding-top: 24px;
+
+  @media (max-width: 767px) {
+    padding-top: 0;
+  }
 `;
 
 const PinnedPost = styled.div`
@@ -707,6 +1153,14 @@ const PinnedPost = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  @media (max-width: 1439px) {
+    margin: 0 24px 24px 24px;
+  }
+
+  @media (max-width: 767px) {
+    margin: 16px 0;
+  }
 `;
 
 const PinnedLeft = styled.div`
@@ -727,6 +1181,15 @@ const PostListItem = styled.div`
   border-bottom: 1px solid #2b2b30;
   gap: 24px;
   cursor: pointer;
+
+  @media (max-width: 1439px) {
+    margin: 0 24px;
+  }
+
+  @media (max-width: 767px) {
+    margin: 0;
+    padding: 20px 0;
+  }
 
   &:last-child {
     border-bottom: none;
@@ -803,6 +1266,10 @@ const RightSidebarWrapper = styled.aside`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+
+  @media (max-width: 1439px) {
+    display: none;
+  }
 `;
 
 const RightSidebarTitle = styled.h3`
@@ -853,7 +1320,7 @@ const PopularMeta = styled.div`
 
 const FloatingWriteBtn = styled.button`
   position: fixed;
-  bottom: 40px;
+  bottom: 56px; 
   left: 50%;
   transform: translateX(-50%);
   background-color: #ffffff;
@@ -869,6 +1336,90 @@ const FloatingWriteBtn = styled.button`
 
   &:hover {
     background-color: #f0f0f0;
+  }
+`;
+
+const ScrollToTopBtn = styled.button`
+  position: fixed;
+  bottom: 56px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1c1c1f;
+  border: 1px solid #3f3f46;
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 50;
+
+  @media (max-width: 1439px) {
+    display: flex;
+  }
+
+  &:hover {
+    background-color: #27272a;
+  }
+`;
+
+const FooterContainer = styled.footer`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  background-color: #131315;
+  border-top: 1px solid #2b2b30;
+  z-index: 100;
+`;
+
+const FooterLeft = styled.div`
+  display: flex;
+  gap: 24px;
+  align-items: center;
+`;
+
+const FooterLink = styled.span`
+  color: #a1a1aa;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    color: #ffffff;
+  }
+`;
+
+const LanguageSelectWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const LanguageSelect = styled.select`
+  background-color: #1c1c1f;
+  color: #a1a1aa;
+  border: 1px solid #3f3f46;
+  padding: 2px 28px 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  height: 24px;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: #55e6c1;
+    color: #ffffff;
   }
 `;
 
@@ -1015,9 +1566,17 @@ export default function CommunityPage() {
   const [selectedTag, setSelectedTag] = useState('');
   const [currentPinnedIndex, setCurrentPinnedIndex] = useState(0);
 
-  // 스크롤 화살표 표시 여부 상태
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Mobile Drawer State
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAppExpanded, setIsAppExpanded] = useState(false);
+  const [isFamilyExpanded, setIsFamilyExpanded] = useState(false);
+  const [isLanguageExpanded, setIsLanguageExpanded] = useState(true);
+
+  // Mobile Filter Modal State
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const sortOptions = [
     { label: '최신순', value: 0 },
@@ -1090,7 +1649,6 @@ export default function CommunityPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 태그 스크롤 영역 체크 로직
   const checkTagsScroll = () => {
     if (tagsScrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = tagsScrollRef.current;
@@ -1100,14 +1658,13 @@ export default function CommunityPage() {
   };
 
   useEffect(() => {
-    // DOM 렌더링 후 너비 체크를 위해 약간의 지연 처리
     const timeoutId = setTimeout(() => checkTagsScroll(), 0);
     window.addEventListener('resize', checkTagsScroll);
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', checkTagsScroll);
     };
-  }, [selectedSoftware]); // 소프트웨어가 바뀌어 태그가 바뀔 때마다 갱신
+  }, [selectedSoftware]);
 
   const scrollTags = (direction: 'left' | 'right') => {
     if (tagsScrollRef.current) {
@@ -1117,6 +1674,10 @@ export default function CommunityPage() {
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const tabTitleMap: Record<string, string> = {
@@ -1229,6 +1790,8 @@ export default function CommunityPage() {
     setCurrentPinnedIndex((prev) => (prev === pinnedPosts.length - 1 ? 0 : prev + 1));
   };
 
+  const totalPostCount = postData?.pages?.[0]?.totalCount ?? postData?.pages?.[0]?.posts?.length ?? 0;
+
   return (
     <DarkBackground>
       <HeaderContainer>
@@ -1237,47 +1800,49 @@ export default function CommunityPage() {
             <ConnectLogo aria-label="Go to Connect Main Page" />
           </Link>
           
-          <NavLink href="/store">스토어</NavLink>
-          <NavLink href="/gallery">갤러리</NavLink>
-          <NavLink href="/contest">콘테스트</NavLink>
-          <NavLink href="/community" active>커뮤니티</NavLink>
+          <DesktopNavGroup>
+            <NavLink href="/store">스토어</NavLink>
+            <NavLink href="/gallery">갤러리</NavLink>
+            <NavLink href="/contest">콘테스트</NavLink>
+            <NavLink href="/community" active>커뮤니티</NavLink>
 
-          <DropdownWrapper>
-            <DropdownTitle className="dropdown-title">
-              앱
-              <svg className="arrow-down" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
-              <svg className="arrow-up" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-            </DropdownTitle>
-            <div className="dropdown-menu">
-              <DropdownItem href="/everywear">EveryWear</DropdownItem>
-              <DropdownItem href="/livesync">LiveSync</DropdownItem>
-              <DropdownItem href="/ar-filter">AR 필터</DropdownItem>
-              <DropdownItem href="/jinny">JINNY</DropdownItem>
-            </div>
-          </DropdownWrapper>
+            <DropdownWrapper>
+              <DropdownTitle className="dropdown-title">
+                앱
+                <svg className="arrow-down" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                <svg className="arrow-up" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+              </DropdownTitle>
+              <div className="dropdown-menu">
+                <DropdownItem href="/everywear">EveryWear</DropdownItem>
+                <DropdownItem href="/livesync">LiveSync</DropdownItem>
+                <DropdownItem href="/ar-filter">AR 필터</DropdownItem>
+                <DropdownItem href="/jinny">JINNY</DropdownItem>
+              </div>
+            </DropdownWrapper>
 
-          <VerticalDivider />
+            <VerticalDivider />
 
-          <DropdownWrapper>
-            <DropdownTitle className="dropdown-title">
-              Gamewear
-              <svg className="arrow-down" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
-              <svg className="arrow-up" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
-            </DropdownTitle>
-            <div className="dropdown-menu">
-              <DropdownItem href="https://inzoi.com" target="_blank">
-                inZOI
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-              </DropdownItem>
-              <DropdownItem href="https://vrchat.com" target="_blank">
-                VRChat
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
-              </DropdownItem>
-            </div>
-          </DropdownWrapper>
+            <DropdownWrapper>
+              <DropdownTitle className="dropdown-title">
+                Gamewear
+                <svg className="arrow-down" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                <svg className="arrow-up" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7 14l5-5 5 5z"/></svg>
+              </DropdownTitle>
+              <div className="dropdown-menu">
+                <DropdownItem href="https://inzoi.com" target="_blank">
+                  inZOI
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                </DropdownItem>
+                <DropdownItem href="https://vrchat.com" target="_blank">
+                  VRChat
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                </DropdownItem>
+              </div>
+            </DropdownWrapper>
+          </DesktopNavGroup>
         </LeftNavGroup>
 
-        <RightAuthGroup>
+        <DesktopAuthGroup>
           <LoginLink href="/login">로그인</LoginLink>
           <SignUpButton href="/signup">회원가입</SignUpButton>
           <GridIconBtn>
@@ -1285,8 +1850,144 @@ export default function CommunityPage() {
               <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>
             </svg>
           </GridIconBtn>
-        </RightAuthGroup>
+        </DesktopAuthGroup>
+
+        {/* Mobile Navigation (<= 1199px) */}
+        <MobileNavGroup>
+          <IconButton>
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+          </IconButton>
+          <IconButton onClick={() => setIsDrawerOpen(true)}>
+            <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </IconButton>
+        </MobileNavGroup>
       </HeaderContainer>
+
+      {/* Mobile Drawer */}
+      <DrawerBackdrop isOpen={isDrawerOpen} onClick={() => setIsDrawerOpen(false)} />
+      <DrawerContainer isOpen={isDrawerOpen}>
+        <DrawerHeader>
+          <DrawerProfileArea>
+            <DrawerAvatar>
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            </DrawerAvatar>
+            <DrawerLoginBtn>로그인</DrawerLoginBtn>
+          </DrawerProfileArea>
+          <IconButton onClick={() => setIsDrawerOpen(false)}>
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </IconButton>
+        </DrawerHeader>
+
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <DrawerItem href="/store">스토어</DrawerItem>
+          <DrawerItem href="/gallery">갤러리</DrawerItem>
+          <DrawerItem href="/creator">크리에이터</DrawerItem>
+          <DrawerItem href="/contest">콘테스트</DrawerItem>
+          <DrawerItem href="/community" active>커뮤니티</DrawerItem>
+
+          <DrawerAccordionBtn active={isAppExpanded} onClick={() => setIsAppExpanded(!isAppExpanded)}>
+            앱
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ transform: isAppExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </DrawerAccordionBtn>
+          {isAppExpanded && (
+            <DrawerSubMenu>
+              <DrawerSubItem href="/everywear">EveryWear</DrawerSubItem>
+              <DrawerSubItem href="/livesync">LiveSync</DrawerSubItem>
+              <DrawerSubItem href="/ar-filter">AR 필터</DrawerSubItem>
+              <DrawerSubItem href="/jinny">JINNY</DrawerSubItem>
+            </DrawerSubMenu>
+          )}
+
+          <DrawerItem href="https://inzoi.com" target="_blank" style={{ justifyContent: 'space-between' }}>
+            Gamewear
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+          </DrawerItem>
+
+          <DrawerItem href="/help" target="_blank" style={{ justifyContent: 'space-between' }}>
+            헬프센터
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+          </DrawerItem>
+
+          <DrawerAccordionBtn active={isFamilyExpanded} onClick={() => setIsFamilyExpanded(!isFamilyExpanded)}>
+            패밀리 사이트
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ transform: isFamilyExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </DrawerAccordionBtn>
+          {isFamilyExpanded && (
+            <DrawerSubMenu>
+              <DrawerSubItem href="https://clo3d.com" target="_blank">CLO</DrawerSubItem>
+              <DrawerSubItem href="https://marvelousdesigner.com" target="_blank">Marvelous Designer</DrawerSubItem>
+            </DrawerSubMenu>
+          )}
+
+          <DrawerAccordionBtn active={isLanguageExpanded} onClick={() => setIsLanguageExpanded(!isLanguageExpanded)}>
+            언어
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ transform: isLanguageExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
+          </DrawerAccordionBtn>
+          {isLanguageExpanded && (
+            <DrawerSubMenu>
+              <DrawerSubItem href="#">English</DrawerSubItem>
+              <DrawerSubItem href="#">中文</DrawerSubItem>
+              <DrawerSubItem href="#" active>한국어</DrawerSubItem>
+              <DrawerSubItem href="#">日本語</DrawerSubItem>
+            </DrawerSubMenu>
+          )}
+        </div>
+      </DrawerContainer>
+
+      {/* Mobile Filter Modal (<= 767px) */}
+      <FilterModalOverlay isOpen={isFilterModalOpen}>
+        <FilterModalHeader>
+          <FilterModalTitle>FILTER</FilterModalTitle>
+          <IconButton onClick={() => setIsFilterModalOpen(false)}>
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </IconButton>
+        </FilterModalHeader>
+        <FilterModalBody>
+          <FilterBreadcrumb>
+            커뮤니티 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            <span className="active">{currentTitle === '전체 게시판' ? '전체' : currentTitle}</span>
+          </FilterBreadcrumb>
+          <FilterSectionTitle>Filter</FilterSectionTitle>
+          <FilterGrid>
+            {getTagsForSoftware(selectedSoftware).map(tag => (
+              <FilterCheckboxLabel key={tag} onClick={() => handleTagClick(tag)}>
+                <FilterCheckboxInput type="checkbox" checked={selectedTag === tag} readOnly />
+                <FilterCustomCheck checked={selectedTag === tag} />
+                {tag}
+              </FilterCheckboxLabel>
+            ))}
+          </FilterGrid>
+          <FilterDivider />
+          <FilterResetBtn onClick={() => {
+            setSelectedTag('');
+            setSearchInput('');
+            setActiveKeyword('');
+          }}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            초기화
+          </FilterResetBtn>
+        </FilterModalBody>
+      </FilterModalOverlay>
 
       <CarouselWrapper>
         <CarouselNavBtn direction="left" onClick={() => scrollCarousel('left')}>
@@ -1328,7 +2029,8 @@ export default function CommunityPage() {
             active={currentPath === '/'} 
             onClick={() => handlePathClick('/')}
           >
-            전체 게시판
+            <DesktopOnly>전체 게시판</DesktopOnly>
+            <MobileOnly>전체</MobileOnly>
           </SidebarItemBtn>
 
           <SidebarDivider />
@@ -1483,27 +2185,43 @@ export default function CommunityPage() {
               )}
             </TopFilterScrollWrapper>
 
-            <SearchInputBox>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <SearchInput 
-                ref={searchInputRef}
-                placeholder={`${currentTitle}에서 검색`} 
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={handleSearchKeyDown}
-              />
-            </SearchInputBox>
+            <SearchAreaMobileWrapper>
+              <SearchInputBox hasValue={searchInput.length > 0}>
+                <svg className="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <SearchInput 
+                  ref={searchInputRef}
+                  placeholder={`${currentTitle}에서 검색`} 
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                />
+                {searchInput.length > 0 && (
+                  <ClearInputBtn onClick={() => {
+                    setSearchInput('');
+                    setActiveKeyword('');
+                    setSelectedTag('');
+                  }}>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                  </ClearInputBtn>
+                )}
+              </SearchInputBox>
+
+              <FilterIconBtn onClick={() => setIsFilterModalOpen(true)}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+                </svg>
+              </FilterIconBtn>
+            </SearchAreaMobileWrapper>
           </TopFilterBar>
 
           <BoardContainer>
             <BoardHeader>
               <BoardTitle>
-                {currentTitle}
-                {(activeKeyword || selectedTag) && (
-                  <BoardTitleSub>
-                    {postData?.pages?.[0]?.totalCount ?? postData?.pages?.[0]?.posts?.length ?? 0} CLO-SET 게시글
-                  </BoardTitleSub>
-                )}
+                <BoardTitleText>{currentTitle}</BoardTitleText>
+                {/* 모바일에서는 조건 없이 항상 표시되도록 변경 */}
+                <BoardTitleSub alwaysShowMobile>
+                  {totalPostCount} 게시글
+                </BoardTitleSub>
               </BoardTitle>
               <BoardHeaderRight ref={sortRef}>
                 <SortButton onClick={() => setIsSortOpen(!isSortOpen)}>
@@ -1628,6 +2346,37 @@ export default function CommunityPage() {
       </FlexContainer>
 
       <FloatingWriteBtn>글쓰기</FloatingWriteBtn>
+      
+      <ScrollToTopBtn onClick={handleScrollToTop}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </ScrollToTopBtn>
+      
+      <FooterContainer>
+        <FooterLeft>
+          <FooterLink>이용약관</FooterLink>
+          <FooterLink>Privacy</FooterLink>
+          <FooterLink>
+            Cookies
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+          </FooterLink>
+          <FooterLink>
+            헬프센터
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+          </FooterLink>
+        </FooterLeft>
+        <LanguageSelectWrapper>
+          <LanguageSelect>
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+          </LanguageSelect>
+          <svg style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="#a1a1aa">
+            <path d="M7 10l5 5 5-5z"/>
+          </svg>
+        </LanguageSelectWrapper>
+      </FooterContainer>
     </DarkBackground>
   );
 }
