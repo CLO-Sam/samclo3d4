@@ -424,16 +424,79 @@ const TopFilterBar = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  gap: 16px;
 `;
 
-const TopFilterLeft = styled.div`
+const TopFilterScrollWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  overflow: hidden;
+`;
+
+const TopFilterScrollContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  flex-wrap: nowrap;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const FadeLeft = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  background: linear-gradient(to right, #131315 30%, transparent);
+  pointer-events: none;
+  z-index: 5;
+`;
+
+const FadeRight = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  background: linear-gradient(to left, #131315 30%, transparent);
+  pointer-events: none;
+  z-index: 5;
+`;
+
+const ScrollArrowBtn = styled.button<{ position: 'left' | 'right' }>`
+  position: absolute;
+  ${props => props.position === 'left' ? 'left: 0;' : 'right: 0;'}
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #1c1c1f;
+  border: 1px solid #3f3f46;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  
+  &:hover {
+    background-color: #27272a;
+  }
 `;
 
 const SoftwareSelectWrapper = styled.div`
   position: relative;
+  flex-shrink: 0;
 `;
 
 const SoftwareButton = styled.button<{ isActive?: boolean }>`
@@ -487,11 +550,13 @@ const TopFilterDivider = styled.div`
   width: 1px;
   height: 14px;
   background-color: #3f3f46;
+  flex-shrink: 0;
 `;
 
 const TagList = styled.div`
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 `;
 
 const TagBtn = styled.button<{ active?: boolean }>`
@@ -518,15 +583,16 @@ const SearchInputBox = styled.div`
   align-items: center;
   gap: 8px;
   width: 240px;
+  flex-shrink: 0;
   border: 1px solid transparent;
   transition: border-color 0.2s ease;
 
   &:focus-within {
-    border-color: #55e6c1;
+    border-color: #55e6c1; /* 하늘색 테두리 활성화 */
   }
 
   &:focus-within svg {
-    fill: #ffffff;
+    fill: #ffffff; /* 아이콘을 흰색으로 강조 */
   }
 `;
 
@@ -936,6 +1002,7 @@ export default function CommunityPage() {
   const sortRef = useRef<HTMLDivElement>(null);
   const softwareRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const tagsScrollRef = useRef<HTMLDivElement>(null);
   
   const [currentPath, setCurrentPath] = useState('/');
   const [sortBy, setSortBy] = useState<number>(4);
@@ -947,6 +1014,10 @@ export default function CommunityPage() {
   const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState('');
   const [currentPinnedIndex, setCurrentPinnedIndex] = useState(0);
+
+  // 스크롤 화살표 표시 여부 상태
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const sortOptions = [
     { label: '최신순', value: 0 },
@@ -960,13 +1031,20 @@ export default function CommunityPage() {
     return ['CLO-SET', 'CONNECT', 'EveryWear', 'LiveSync'];
   };
 
-  // 직접 주소로 접근했을 때 대응 (Next.js 라우터 준비 완료 시점)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+      const handlePopState = () => setCurrentPath(window.location.pathname);
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, []);
+
   useEffect(() => {
     if (router.isReady) {
       const path = router.asPath.split('?')[0];
       setCurrentPath(path || '/');
 
-      // 주소창에 파라미터가 있다면 상태값 복원
       const queryTags = router.query.tags as string;
       if (queryTags === 'CLO') setSelectedSoftware('CLO');
       if (queryTags === 'MavelousDesigner') setSelectedSoftware('MarvelousDesigner');
@@ -979,7 +1057,6 @@ export default function CommunityPage() {
     }
   }, [router.isReady, router.asPath]);
 
-  // 상태 변화 시 주소창 URL 업데이트 (브라우저 히스토리 기록 X, 표시만 변경)
   useEffect(() => {
     if (!router.isReady) return;
 
@@ -1012,6 +1089,35 @@ export default function CommunityPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // 태그 스크롤 영역 체크 로직
+  const checkTagsScroll = () => {
+    if (tagsScrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tagsScrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+    }
+  };
+
+  useEffect(() => {
+    // DOM 렌더링 후 너비 체크를 위해 약간의 지연 처리
+    const timeoutId = setTimeout(() => checkTagsScroll(), 0);
+    window.addEventListener('resize', checkTagsScroll);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', checkTagsScroll);
+    };
+  }, [selectedSoftware]); // 소프트웨어가 바뀌어 태그가 바뀔 때마다 갱신
+
+  const scrollTags = (direction: 'left' | 'right') => {
+    if (tagsScrollRef.current) {
+      const scrollAmount = 150;
+      tagsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const tabTitleMap: Record<string, string> = {
     '/': '전체 게시판',
@@ -1089,7 +1195,6 @@ export default function CommunityPage() {
   };
 
   const handlePathClick = (path: string) => {
-    // Next.js 라우터로 페이지 리로드 없이 주소 변경 (기존 쿼리 파라미터 유지)
     router.push({ pathname: path, query: router.query }, undefined, { shallow: true });
     setCurrentPath(path);
   };
@@ -1104,7 +1209,6 @@ export default function CommunityPage() {
     const newTag = selectedTag === tag ? '' : tag;
     setSelectedTag(newTag);
     
-    // 포커싱 및 텍스트 렌더링
     setSearchInput(newTag);
     setActiveKeyword(newTag);
     
@@ -1305,59 +1409,79 @@ export default function CommunityPage() {
 
         <MainPanel>
           <TopFilterBar>
-            <TopFilterLeft>
-              <SoftwareSelectWrapper ref={softwareRef}>
-                <SoftwareButton 
-                  isActive={selectedSoftware !== '전체'}
-                  onClick={() => setIsSoftwareOpen(!isSoftwareOpen)}
-                >
-                  {selectedSoftware === '전체' ? (
-                    <>
-                      <span style={{ color: '#a1a1aa' }}>소프트웨어</span>
-                      <span style={{ color: '#3f3f46', margin: '0 12px' }}>|</span>
-                      <span style={{ color: '#fff' }}>전체</span>
-                    </>
-                  ) : (
-                    <span>{selectedSoftware === 'CLO' ? 'CLO' : 'Marvelous Designer'}</span>
-                  )}
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M7 10l5 5 5-5z"/>
-                  </svg>
-                </SoftwareButton>
-                
-                <SoftwareDropdownMenu isOpen={isSoftwareOpen}>
-                  {['전체', 'CLO', 'MarvelousDesigner'].map((opt) => (
-                    <SoftwareDropdownItem
-                      key={opt}
-                      active={selectedSoftware === opt}
-                      onClick={() => {
-                        setSelectedSoftware(opt);
-                        setSearchInput('');
-                        setActiveKeyword('');
-                        setSelectedTag('');
-                        setIsSoftwareOpen(false);
-                      }}
-                    >
-                      {opt === 'MarvelousDesigner' ? 'Marvelous Designer' : opt}
-                    </SoftwareDropdownItem>
-                  ))}
-                </SoftwareDropdownMenu>
-              </SoftwareSelectWrapper>
+            <TopFilterScrollWrapper>
+              {canScrollLeft && (
+                <>
+                  <FadeLeft />
+                  <ScrollArrowBtn position="left" onClick={() => scrollTags('left')}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                  </ScrollArrowBtn>
+                </>
+              )}
               
-              <TopFilterDivider />
-
-              <TagList>
-                {getTagsForSoftware(selectedSoftware).map(tag => (
-                  <TagBtn 
-                    key={tag}
-                    active={selectedTag === tag}
-                    onClick={() => handleTagClick(tag)}
+              <TopFilterScrollContainer ref={tagsScrollRef} onScroll={checkTagsScroll}>
+                <SoftwareSelectWrapper ref={softwareRef}>
+                  <SoftwareButton 
+                    isActive={selectedSoftware !== '전체'}
+                    onClick={() => setIsSoftwareOpen(!isSoftwareOpen)}
                   >
-                    {tag}
-                  </TagBtn>
-                ))}
-              </TagList>
-            </TopFilterLeft>
+                    {selectedSoftware === '전체' ? (
+                      <>
+                        <span style={{ color: '#a1a1aa' }}>소프트웨어</span>
+                        <span style={{ color: '#3f3f46', margin: '0 12px' }}>|</span>
+                        <span style={{ color: '#fff' }}>전체</span>
+                      </>
+                    ) : (
+                      <span>{selectedSoftware === 'CLO' ? 'CLO' : 'Marvelous Designer'}</span>
+                    )}
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                      <path d="M7 10l5 5 5-5z"/>
+                    </svg>
+                  </SoftwareButton>
+                  
+                  <SoftwareDropdownMenu isOpen={isSoftwareOpen}>
+                    {['전체', 'CLO', 'MarvelousDesigner'].map((opt) => (
+                      <SoftwareDropdownItem
+                        key={opt}
+                        active={selectedSoftware === opt}
+                        onClick={() => {
+                          setSelectedSoftware(opt);
+                          setSearchInput('');
+                          setActiveKeyword('');
+                          setSelectedTag('');
+                          setIsSoftwareOpen(false);
+                        }}
+                      >
+                        {opt === 'MarvelousDesigner' ? 'Marvelous Designer' : opt}
+                      </SoftwareDropdownItem>
+                    ))}
+                  </SoftwareDropdownMenu>
+                </SoftwareSelectWrapper>
+                
+                <TopFilterDivider />
+
+                <TagList>
+                  {getTagsForSoftware(selectedSoftware).map(tag => (
+                    <TagBtn 
+                      key={tag}
+                      active={selectedTag === tag}
+                      onClick={() => handleTagClick(tag)}
+                    >
+                      {tag}
+                    </TagBtn>
+                  ))}
+                </TagList>
+              </TopFilterScrollContainer>
+              
+              {canScrollRight && (
+                <>
+                  <FadeRight />
+                  <ScrollArrowBtn position="right" onClick={() => scrollTags('right')}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                  </ScrollArrowBtn>
+                </>
+              )}
+            </TopFilterScrollWrapper>
 
             <SearchInputBox>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="#a1a1aa"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
