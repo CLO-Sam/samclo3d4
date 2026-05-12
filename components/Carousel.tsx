@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import styled from '@emotion/styled';
+import { useRef } from "react";
+import styled from "@emotion/styled";
 
 const CarouselWrapper = styled.div`
   position: relative;
@@ -126,11 +126,11 @@ const CreatorName = styled.span`
   color: #ffffff;
 `;
 
-const CarouselNavBtn = styled.button<{ direction: 'left' | 'right' }>`
+const CarouselNavBtn = styled.button<{ direction: "left" | "right" }>`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  ${(props) => (props.direction === 'left' ? 'left: 5px;' : 'right: 5px;')}
+  ${(props) => (props.direction === "left" ? "left: 5px;" : "right: 5px;")}
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
   color: white;
@@ -169,15 +169,19 @@ interface CarouselProps {
   getCategoryName: (id: number) => string;
 }
 
-export default function Carousel({ banners, onPostClick, getCategoryName }: CarouselProps) {
+export default function Carousel({
+  banners,
+  onPostClick,
+  getCategoryName,
+}: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const scrollCarousel = (direction: 'left' | 'right') => {
+  const scrollCarousel = (direction: "left" | "right") => {
     if (trackRef.current) {
       const scrollAmount = 360;
       trackRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
       });
     }
   };
@@ -186,7 +190,7 @@ export default function Carousel({ banners, onPostClick, getCategoryName }: Caro
 
   return (
     <CarouselWrapper>
-      <CarouselNavBtn direction="left" onClick={() => scrollCarousel('left')}>
+      <CarouselNavBtn direction="left" onClick={() => scrollCarousel("left")}>
         <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
           <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
         </svg>
@@ -194,11 +198,19 @@ export default function Carousel({ banners, onPostClick, getCategoryName }: Caro
 
       <CarouselTrack ref={trackRef}>
         {banners.map((item) => {
-          const bgImage = item.postThumbnail?.path || `https://picsum.photos/seed/${item.postId.slice(0, 5)}/400/500`;
-          const avatarImage = item.creatorThumbnailPath || `https://picsum.photos/seed/${item.creatorName}/100/100`;
+          const bgImage =
+            item.postThumbnail?.path ||
+            `https://picsum.photos/seed/${item.postId.slice(0, 5)}/400/500`;
+          const avatarImage =
+            item.creatorThumbnailPath ||
+            `https://picsum.photos/seed/${item.creatorName}/100/100`;
 
           return (
-            <CarouselCard key={item.postId} bg={bgImage} onClick={() => onPostClick(item)}>
+            <CarouselCard
+              key={item.postId}
+              bg={bgImage}
+              onClick={() => onPostClick(item)}
+            >
               <CardHoverOverlay className="hover-content">
                 <CategoryBadge>{getCategoryName(item.category)}</CategoryBadge>
 
@@ -216,7 +228,7 @@ export default function Carousel({ banners, onPostClick, getCategoryName }: Caro
         })}
       </CarouselTrack>
 
-      <CarouselNavBtn direction="right" onClick={() => scrollCarousel('right')}>
+      <CarouselNavBtn direction="right" onClick={() => scrollCarousel("right")}>
         <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
           <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
         </svg>
