@@ -165,7 +165,7 @@ interface BannerPost {
 
 interface CarouselProps {
   banners: BannerPost[] | undefined;
-  onPostClick: (post: any) => void;
+  onPostClick: (post: BannerPost) => void;
   getCategoryName: (id: number) => string;
 }
 
