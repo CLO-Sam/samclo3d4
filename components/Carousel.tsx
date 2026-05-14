@@ -112,11 +112,11 @@ const CreatorInfo = styled.div`
   margin-top: 8px;
 `;
 
-const CreatorAvatar = styled.div<{ bg: string }>`
+const CreatorAvatar = styled.img`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: url(${(props) => props.bg}) center/cover no-repeat;
+  object-fit: cover;
   background-color: #444;
 `;
 
@@ -218,7 +218,10 @@ export default function Carousel({
                   <CardTitle>{item.title}</CardTitle>
                   {item.summary && <CardSummary>{item.summary}</CardSummary>}
                   <CreatorInfo>
-                    <CreatorAvatar bg={avatarImage} />
+                    <CreatorAvatar
+                      src={avatarImage}
+                      alt={`${item.creatorName} 프로필`}
+                    />
                     <CreatorName>{item.creatorName}</CreatorName>
                   </CreatorInfo>
                 </CardBottomInfo>
