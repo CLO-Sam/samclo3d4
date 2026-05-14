@@ -6,10 +6,16 @@ import { Provider } from "react-redux";
 import { store } from "../store/store";
 
 const globalStyles = css`
+  :root {
+    color-scheme: dark;
+  }
+
   html,
   body {
     margin: 0;
     padding: 0;
+    max-width: 100vw;
+    overflow-x: hidden;
     font-family:
       "Pretendard",
       -apple-system,
@@ -18,6 +24,9 @@ const globalStyles = css`
       Roboto,
       sans-serif;
     background-color: #131315;
+    color: #ededed; /* 기본 글자색 (밝은 회색) */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   * {
