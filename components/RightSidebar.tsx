@@ -52,11 +52,19 @@ const PopularMeta = styled.div`
   color: #888888;
 `;
 
+interface PopularPostData {
+  postId: string;
+  title: string;
+  category: number;
+  creatorName: string;
+  registeredDate: string;
+}
+
 interface RightSidebarProps {
-  popularPosts: any[] | undefined;
+  popularPosts: PopularPostData[] | undefined;
   getCategoryName: (id: number) => string;
   formatDateKorean: (date: string) => string;
-  onPostClick: (post: any) => void;
+  onPostClick: (post: PopularPostData) => void;
 }
 
 export default function RightSidebar({
