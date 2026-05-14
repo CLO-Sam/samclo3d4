@@ -129,6 +129,21 @@ interface SidebarProps {
   onPathClick: (path: string) => void;
 }
 
+const OFFICIAL_ACCOUNTS = [
+  { path: "/notice", label: "공지사항" },
+  { path: "/user-spotlight", label: "유저 스포트라이트" },
+];
+
+const TOPICS = [
+  { path: "/general", label: "자유 게시판" },
+  { path: "/challenge", label: "챌린지" },
+  { path: "/project-and-steps", label: "프로젝트 & 과정" },
+  { path: "/tips-and-tricks", label: "팁 & 트릭" },
+  { path: "/qna", label: "QnA" },
+  { path: "/user-feedback", label: "유저 피드백" },
+  { path: "/job-board", label: "구인구직" },
+];
+
 export default function Sidebar({ currentPath, onPathClick }: SidebarProps) {
   return (
     <SidebarWrapper>
@@ -144,66 +159,30 @@ export default function Sidebar({ currentPath, onPathClick }: SidebarProps) {
 
       <SidebarGroup>
         <SidebarGroupTitle>공식 계정</SidebarGroupTitle>
-        <SidebarItemBtn
-          active={currentPath === "/notice"}
-          onClick={() => onPathClick("/notice")}
-        >
-          공지사항
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/user-spotlight"}
-          onClick={() => onPathClick("/user-spotlight")}
-        >
-          유저 스포트라이트
-        </SidebarItemBtn>
+        {OFFICIAL_ACCOUNTS.map((menu) => (
+          <SidebarItemBtn
+            key={menu.path}
+            active={currentPath === menu.path}
+            onClick={() => onPathClick(menu.path)}
+          >
+            {menu.label}
+          </SidebarItemBtn>
+        ))}
       </SidebarGroup>
 
       <SidebarDivider />
 
       <SidebarGroup>
         <SidebarGroupTitle>주제</SidebarGroupTitle>
-        <SidebarItemBtn
-          active={currentPath === "/general"}
-          onClick={() => onPathClick("/general")}
-        >
-          자유 게시판
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/challenge"}
-          onClick={() => onPathClick("/challenge")}
-        >
-          챌린지
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/project-and-steps"}
-          onClick={() => onPathClick("/project-and-steps")}
-        >
-          프로젝트 & 과정
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/tips-and-tricks"}
-          onClick={() => onPathClick("/tips-and-tricks")}
-        >
-          팁 & 트릭
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/qna"}
-          onClick={() => onPathClick("/qna")}
-        >
-          QnA
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/user-feedback"}
-          onClick={() => onPathClick("/user-feedback")}
-        >
-          유저 피드백
-        </SidebarItemBtn>
-        <SidebarItemBtn
-          active={currentPath === "/job-board"}
-          onClick={() => onPathClick("/job-board")}
-        >
-          구인구직
-        </SidebarItemBtn>
+        {TOPICS.map((menu) => (
+          <SidebarItemBtn
+            key={menu.path}
+            active={currentPath === menu.path}
+            onClick={() => onPathClick(menu.path)}
+          >
+            {menu.label}
+          </SidebarItemBtn>
+        ))}
       </SidebarGroup>
 
       <SidebarDivider />
