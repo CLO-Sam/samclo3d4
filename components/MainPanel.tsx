@@ -10,6 +10,7 @@ import {
   setActiveKeyword,
   setSortBy,
 } from "../store/filterSlice";
+import { SORT_OPTIONS, SOFTWARE_OPTIONS } from "../constants/navigation";
 
 const MainPanelWrapper = styled.main`
   flex: 1;
@@ -641,7 +642,7 @@ export default function MainPanel({
           </SoftwareButton>
 
           <SoftwareDropdownMenu isOpen={isSoftwareOpen}>
-            {["전체", "CLO", "MarvelousDesigner"].map((opt) => (
+            {SOFTWARE_OPTIONS.map((opt) => (
               <SoftwareDropdownItem
                 key={opt}
                 active={selectedSoftware === opt}
@@ -776,12 +777,12 @@ export default function MainPanel({
             </SortButton>
 
             <SortDropdownMenu isOpen={isSortOpen}>
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <SortDropdownItem
                   key={option.value}
                   active={sortBy === option.value}
                   onClick={() => {
-                    setSortBy(option.value);
+                    dispatch(setSortBy(option.value));
                     setIsSortOpen(false);
                   }}
                 >

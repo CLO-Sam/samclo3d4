@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { closeDrawer } from "../store/uiSlice";
+import { NAV_ITEMS, APP_DROPDOWN_ITEMS } from "../constants/navigation";
 
 const DrawerBackdrop = styled.div<{ isOpen: boolean }>`
   position: fixed;
@@ -158,9 +159,16 @@ export default function MobileDrawer({
           </IconButton>
         </DrawerHeader>
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-          <DrawerItem href="/community" active>
-            커뮤니티
-          </DrawerItem>
+          {NAV_ITEMS.map((item) => (
+            <DrawerItem
+              key={item.href}
+              href={item.href}
+              active={item.href === "/community"}
+            >
+              {item.label}
+            </DrawerItem>
+          ))}
+
           <DrawerAccordionBtn
             active={isAppExpanded}
             onClick={() => setIsAppExpanded(!isAppExpanded)}
@@ -176,9 +184,14 @@ export default function MobileDrawer({
               <path d="M7 10l5 5 5-5z" />
             </svg>
           </DrawerAccordionBtn>
+
           {isAppExpanded && (
             <DrawerSubMenu>
-              <DrawerSubItem href="/everywear">EveryWear</DrawerSubItem>
+              {APP_DROPDOWN_ITEMS.map((item) => (
+                <DrawerSubItem key={item.href} href={item.href}>
+                  {item.label}
+                </DrawerSubItem>
+              ))}
             </DrawerSubMenu>
           )}
         </div>

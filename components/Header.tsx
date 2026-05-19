@@ -2,6 +2,11 @@ import Link from "next/link";
 import styled from "@emotion/styled";
 import { useDispatch } from "react-redux";
 import { openDrawer } from "../store/uiSlice";
+import {
+  NAV_ITEMS,
+  APP_DROPDOWN_ITEMS,
+  GAMEWEAR_DROPDOWN_ITEMS,
+} from "../constants/navigation";
 
 const HeaderContainer = styled.header`
   background-color: #000000;
@@ -173,12 +178,16 @@ export default function Header() {
           <ConnectLogo aria-label="Go to Connect Main Page" />
         </Link>
         <DesktopNavGroup>
-          <NavLink href="/store">스토어</NavLink>
-          <NavLink href="/gallery">갤러리</NavLink>
-          <NavLink href="/contest">콘테스트</NavLink>
-          <NavLink href="/community" active>
-            커뮤니티
-          </NavLink>
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              active={item.href === "/community"}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+
           <DropdownWrapper>
             <DropdownTitle className="dropdown-title">
               앱
@@ -202,11 +211,16 @@ export default function Header() {
               </svg>
             </DropdownTitle>
             <div className="dropdown-menu">
-              <DropdownItem href="/everywear">EveryWear</DropdownItem>
-              <DropdownItem href="/livesync">LiveSync</DropdownItem>
+              {APP_DROPDOWN_ITEMS.map((item) => (
+                <DropdownItem key={item.href} href={item.href}>
+                  {item.label}
+                </DropdownItem>
+              ))}
             </div>
           </DropdownWrapper>
+
           <VerticalDivider />
+
           <DropdownWrapper>
             <DropdownTitle className="dropdown-title">
               Gamewear
@@ -230,9 +244,15 @@ export default function Header() {
               </svg>
             </DropdownTitle>
             <div className="dropdown-menu">
-              <DropdownItem href="https://inzoi.com" target="_blank">
-                inZOI
-              </DropdownItem>
+              {GAMEWEAR_DROPDOWN_ITEMS.map((item) => (
+                <DropdownItem
+                  key={item.href}
+                  href={item.href}
+                  target={item.target}
+                >
+                  {item.label}
+                </DropdownItem>
+              ))}
             </div>
           </DropdownWrapper>
         </DesktopNavGroup>
