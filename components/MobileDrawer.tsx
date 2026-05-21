@@ -117,10 +117,6 @@ interface MobileDrawerProps {
 export default function MobileDrawer({
   isAppExpanded,
   setIsAppExpanded,
-  isFamilyExpanded,
-  setIsFamilyExpanded,
-  isLanguageExpanded,
-  setIsLanguageExpanded,
 }: MobileDrawerProps) {
   const dispatch = useDispatch();
   const isOpen = useSelector((state: RootState) => state.ui.isDrawerOpen);
