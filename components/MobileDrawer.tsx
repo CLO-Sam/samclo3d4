@@ -5,6 +5,16 @@ import { RootState } from "../store/store";
 import { closeDrawer } from "../store/uiSlice";
 import { NAV_ITEMS, APP_DROPDOWN_ITEMS } from "../constants/navigation";
 
+const baseMenuItemStyle = (props: { active?: boolean }) => `
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  font-size: 15px;
+  color: ${props.active ? "#ffffff" : "#d4d4d8"};
+  background-color: ${props.active ? "#3f3f46" : "transparent"};
+  border-left: 3px solid ${props.active ? "#55e6c1" : "transparent"};
+`;
+
 const DrawerBackdrop = styled.div<{ isOpen: boolean }>`
   position: fixed;
   top: 0;
@@ -67,27 +77,13 @@ const IconButton = styled.button`
   padding: 0;
 `;
 const DrawerItem = styled(Link)<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 16px 24px;
-  color: ${(props) => (props.active ? "#ffffff" : "#d4d4d8")};
+  ${baseMenuItemStyle}
   text-decoration: none;
-  font-size: 15px;
-  background-color: ${(props) => (props.active ? "#3f3f46" : "transparent")};
-  border-left: 3px solid
-    ${(props) => (props.active ? "#55e6c1" : "transparent")};
 `;
 const DrawerAccordionBtn = styled.div<{ active?: boolean }>`
-  display: flex;
-  align-items: center;
+  ${baseMenuItemStyle}
   justify-content: space-between;
-  padding: 16px 24px;
-  color: ${(props) => (props.active ? "#ffffff" : "#d4d4d8")};
-  font-size: 15px;
   cursor: pointer;
-  background-color: ${(props) => (props.active ? "#3f3f46" : "transparent")};
-  border-left: 3px solid
-    ${(props) => (props.active ? "#55e6c1" : "transparent")};
 `;
 const DrawerSubMenu = styled.div`
   display: flex;
@@ -108,10 +104,6 @@ const DrawerSubItem = styled(Link)<{ active?: boolean }>`
 interface MobileDrawerProps {
   isAppExpanded: boolean;
   setIsAppExpanded: (val: boolean) => void;
-  isFamilyExpanded: boolean;
-  setIsFamilyExpanded: (val: boolean) => void;
-  isLanguageExpanded: boolean;
-  setIsLanguageExpanded: (val: boolean) => void;
 }
 
 export default function MobileDrawer({
