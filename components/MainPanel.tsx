@@ -589,17 +589,14 @@ export default function MainPanel({
   const sortRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      console.log("CCTV 감지! 클릭된 타겟:", event.target);
-
       if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-        console.log("👉 정렬 바깥 클릭됨. 정렬 드롭다운 닫음!");
         setIsSortOpen(false);
       }
       if (
         softwareRef.current &&
         !softwareRef.current.contains(event.target as Node)
       ) {
-        console.log("👉 소프트웨어 바깥 클릭됨. 소프트웨어 드롭다운 닫음!");
+
         setIsSoftwareOpen(false);
       }
     };
@@ -608,7 +605,7 @@ export default function MainPanel({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  console.log("렌더링 됨! 현재 스위치 상태:", isSoftwareOpen);
+
   return (
     <MainPanelWrapper>
       <TopFilterBar>
@@ -616,12 +613,6 @@ export default function MainPanel({
           <SoftwareButton
             isActive={selectedSoftware !== "전체"}
             onClick={() => {
-              console.log(
-                "버튼 클릭됨! 현재 상태:",
-                isSoftwareOpen,
-                "👉 바꿀 상태:",
-                !isSoftwareOpen,
-              );
               setIsSoftwareOpen(!isSoftwareOpen);
             }}
           >

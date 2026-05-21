@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import styled from "@emotion/styled";
 
+
 const CarouselWrapper = styled.div`
   position: relative;
   max-width: 1440px;
@@ -20,28 +21,6 @@ const CarouselTrack = styled.div`
 
   &::-webkit-scrollbar {
     display: none;
-  }
-`;
-
-const CarouselCard = styled.div<{ bg: string }>`
-  box-sizing: border-box;
-  min-width: 340px;
-  height: 380px;
-  border-radius: 16px;
-  background: url(${(props) => props.bg}) center/cover no-repeat;
-  background-color: #1c1c1f;
-  scroll-snap-align: start;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-6px);
-    .hover-content {
-      opacity: 1;
-    }
   }
 `;
 
@@ -65,6 +44,31 @@ const CardHoverOverlay = styled.div`
   justify-content: space-between;
   padding: 24px;
 `;
+
+
+const CarouselCard = styled.div<{ bg: string }>`
+  box-sizing: border-box;
+  min-width: 340px;
+  height: 380px;
+  border-radius: 16px;
+  background: url(${(props) => props.bg}) center/cover no-repeat;
+  background-color: #1c1c1f;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    ${CardHoverOverlay} {
+      opacity: 1;
+    }
+  }
+`;
+
+
 
 const CategoryBadge = styled.div`
   align-self: flex-start;
@@ -211,7 +215,7 @@ export default function Carousel({
               bg={bgImage}
               onClick={() => onPostClick(item)}
             >
-              <CardHoverOverlay className="hover-content">
+              <CardHoverOverlay>
                 <CategoryBadge>{getCategoryName(item.category)}</CategoryBadge>
 
                 <CardBottomInfo>
