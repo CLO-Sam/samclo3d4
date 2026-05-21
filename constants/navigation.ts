@@ -36,3 +36,21 @@ export const SORT_OPTIONS = [
 ];
 
 export const SOFTWARE_OPTIONS = ["전체", "CLO", "MarvelousDesigner"];
+
+export const FOOTER_LINKS = [
+  { label: "이용약관", href: "/" },
+  { label: "Privacy", href: "/" },
+  { label: "Cookies", href: "/" },
+  {
+    label: "헬프센터",
+    href: "/",
+    isExternal: true,
+  },
+];
+
+export const LANGUAGES = [
+  { label: "English", value: "en" },
+  { label: "中文", value: "zh" },
+  { label: "한국어", value: "ko" },
+  { label: "日本語", value: "ja" },
+];

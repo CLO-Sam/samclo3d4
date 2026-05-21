@@ -24,7 +24,7 @@ const globalStyles = css`
       Roboto,
       sans-serif;
     background-color: #131315;
-    color: #ededed; /* 기본 글자색 (밝은 회색) */
+    color: #ededed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

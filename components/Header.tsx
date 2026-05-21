@@ -117,7 +117,7 @@ export default function Header() {
   return (
     <HeaderContainer>
       <LeftNavGroup>
-        <Link href="/ko" style={{ textDecoration: "none", display: "flex" }}>
+        <Link href="/" style={{ textDecoration: "none", display: "flex" }}>
           <ConnectLogo aria-label="Go to Connect Main Page" />
         </Link>
         <DesktopNavGroup>

@@ -596,7 +596,6 @@ export default function MainPanel({
         softwareRef.current &&
         !softwareRef.current.contains(event.target as Node)
       ) {
-
         setIsSoftwareOpen(false);
       }
     };

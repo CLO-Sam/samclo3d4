@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import styled from "@emotion/styled";
 
-
 const CarouselWrapper = styled.div`
   position: relative;
   max-width: 1440px;
@@ -45,7 +44,6 @@ const CardHoverOverlay = styled.div`
   padding: 24px;
 `;
 
-
 const CarouselCard = styled.div<{ bg: string }>`
   box-sizing: border-box;
   min-width: 340px;
@@ -67,8 +65,6 @@ const CarouselCard = styled.div<{ bg: string }>`
     }
   }
 `;
-
-
 
 const CategoryBadge = styled.div`
   align-self: flex-start;

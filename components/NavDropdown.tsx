@@ -1,6 +1,5 @@
-import Link from 'next/link';
-import styled from '@emotion/styled';
-
+import Link from "next/link";
+import styled from "@emotion/styled";
 
 const DropdownMenu = styled.div`
   display: none;
@@ -47,7 +46,6 @@ const DropdownItem = styled(Link)`
   }
 `;
 
-
 const DropdownWrapper = styled.div`
   position: relative;
   display: flex;
@@ -57,8 +55,7 @@ const DropdownWrapper = styled.div`
 
   &:hover {
     color: #00e5ff;
-    
-    /* 클래스 이름 대신 컴포넌트 자체를 타겟팅! */
+
     ${DropdownMenu} {
       display: flex;
       flex-direction: column;
@@ -99,7 +96,7 @@ export default function NavDropdown({ title, items }: NavDropdownProps) {
           <path d="M7 14l5-5 5 5z" />
         </ArrowUp>
       </DropdownTitle>
-      
+
       <DropdownMenu>
         {items.map((item) => (
           <DropdownItem key={item.href} href={item.href} target={item.target}>
