@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { getCategoryName, formatDateKorean } from "../utils/helper";
 
 const RightSidebarWrapper = styled.aside`
   width: 280px;
@@ -62,15 +63,11 @@ interface PopularPostData {
 
 interface RightSidebarProps {
   popularPosts: PopularPostData[] | undefined;
-  getCategoryName: (id: number) => string;
-  formatDateKorean: (date: string) => string;
   onPostClick: (post: PopularPostData) => void;
 }
 
 export default function RightSidebar({
   popularPosts,
-  getCategoryName,
-  formatDateKorean,
   onPostClick,
 }: RightSidebarProps) {
   return (

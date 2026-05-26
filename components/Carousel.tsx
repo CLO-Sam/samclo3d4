@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import styled from "@emotion/styled";
+import { getCategoryName } from "../utils/helper";
 
 const CarouselWrapper = styled.div`
   position: relative;
@@ -166,14 +167,9 @@ interface BannerPost {
 interface CarouselProps {
   banners: BannerPost[] | undefined;
   onPostClick: (post: BannerPost) => void;
-  getCategoryName: (id: number) => string;
 }
 
-export default function Carousel({
-  banners,
-  onPostClick,
-  getCategoryName,
-}: CarouselProps) {
+export default function Carousel({ banners, onPostClick }: CarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   const scrollCarousel = (direction: "left" | "right") => {

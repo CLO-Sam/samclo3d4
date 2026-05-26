@@ -11,6 +11,11 @@ import {
   setSortBy,
 } from "../store/filterSlice";
 import { SORT_OPTIONS, SOFTWARE_OPTIONS } from "../constants/navigation";
+import {
+  getCategoryName,
+  getCategoryBadgeStyle,
+  formatTimeAgo,
+} from "../utils/helper";
 
 const MainPanelWrapper = styled.main`
   flex: 1;
@@ -536,7 +541,6 @@ interface MainPanelProps {
   tagsScrollRef: React.RefObject<HTMLDivElement>;
   checkTagsScroll: () => void;
   getTagsForSoftware: (software: string) => string[];
-  handleTagClick: (tag: string) => void;
   handleSearchKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   searchInputRef: React.RefObject<HTMLInputElement>;
   sortOptions: { label: string; value: number }[];
@@ -545,11 +549,8 @@ interface MainPanelProps {
   handlePrevPin: () => void;
   handleNextPin: () => void;
   handlePostClick: (post: any) => void;
-  getCategoryBadgeStyle: (id: number) => { bg: string; color: string };
-  getCategoryName: (id: number) => string;
   status: "pending" | "error" | "success";
   postData: any;
-  formatTimeAgo: (date: string) => string;
   loadMoreRef: React.RefObject<HTMLDivElement>;
   isFetchingNextPage: boolean;
 }
@@ -563,7 +564,6 @@ export default function MainPanel({
   tagsScrollRef,
   checkTagsScroll,
   getTagsForSoftware,
-  handleTagClick,
   handleSearchKeyDown,
   searchInputRef,
   sortOptions,
@@ -572,11 +572,8 @@ export default function MainPanel({
   handlePrevPin,
   handleNextPin,
   handlePostClick,
-  getCategoryBadgeStyle,
-  getCategoryName,
   status,
   postData,
-  formatTimeAgo,
   loadMoreRef,
   isFetchingNextPage,
 }: MainPanelProps) {
