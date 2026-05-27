@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { getCategoryName, formatDateKorean } from "../utils/helper";
+import PopularPostItem, { PopularPostData } from "./PopularPostItem";
 
 const RightSidebarWrapper = styled.aside`
   width: 280px;
@@ -18,47 +19,9 @@ const RightSidebarTitle = styled.h3`
   margin: 0 0 24px 0;
 `;
 
-const PopularPostItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #2b2b30;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-  &:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-`;
-
-const PopularCategory = styled.div`
-  font-size: 13px;
-  color: #dddddd;
-`;
-const PopularTitle = styled.div`
-  font-size: 16px;
-  color: #ffffff;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-const PopularMeta = styled.div`
-  font-size: 13px;
-  color: #888888;
-`;
-
-interface PopularPostData {
-  postId: string;
-  title: string;
-  category: number;
-  creatorName: string;
-  registeredDate: string;
+interface RightSidebarProps {
+  popularPosts: PopularPostData[] | undefined;
+  onPostClick: (post: PopularPostData) => void;
 }
 
 interface RightSidebarProps {
@@ -75,13 +38,11 @@ export default function RightSidebar({
       <RightSidebarTitle>인기 게시글</RightSidebarTitle>
       {popularPosts &&
         popularPosts.map((post) => (
-          <PopularPostItem key={post.postId} onClick={() => onPostClick(post)}>
-            <PopularCategory>{getCategoryName(post.category)}</PopularCategory>
-            <PopularTitle>{post.title}</PopularTitle>
-            <PopularMeta>
-              {post.creatorName} | {formatDateKorean(post.registeredDate)}
-            </PopularMeta>
-          </PopularPostItem>
+          <PopularPostItem
+            key={post.postId}
+            post={post}
+            onClick={() => onPostClick(post)}
+          />
         ))}
     </RightSidebarWrapper>
   );
