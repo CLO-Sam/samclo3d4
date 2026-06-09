@@ -13,7 +13,6 @@ import {
 import MainPanel from "../components/MainPanel";
 import { PostItemData } from "../components/PostItem";
 
-// --- API 데이터 패칭 함수들 ---
 async function fetchPinnedPosts(): Promise<PostItemData[]> {
   const res = await fetch(
     "https://test-connect-community.api.clo-set.com/api/post/pins?pinType=20&language=ko",
@@ -67,11 +66,9 @@ export default function PostListContainer() {
   const currentPath = router.asPath.split("?")[0] || "/";
   const dispatch = useDispatch();
 
-  // 1. Redux 상태 가져오기
   const { selectedSoftware, selectedTag, searchInput, activeKeyword, sortBy } =
     useSelector((state: RootState) => state.filter);
 
-  // 2. UI 및 스크롤 상태
   const [currentPinnedIndex, setCurrentPinnedIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -109,7 +106,6 @@ export default function PostListContainer() {
     },
   });
 
-  // 4. 무한 스크롤 옵저버 세팅
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -123,7 +119,6 @@ export default function PostListContainer() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 5. 각종 기능 및 핸들러 함수들
   const checkTagsScroll = () => {
     if (tagsScrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = tagsScrollRef.current;
@@ -191,7 +186,6 @@ export default function PostListContainer() {
   };
 
   const handlePostClick = (post: any) => {
-    // 임시 로그. 추후 라우팅 로직이나 모달 열기 로직 추가
     console.log("포스트 클릭:", post.title);
   };
 
@@ -214,7 +208,6 @@ export default function PostListContainer() {
     postData?.pages?.[0]?.posts?.length ??
     0;
 
-  // 6. 계산된 모든 데이터를 예쁜 얼굴(MainPanel)로 전달!
   return (
     <MainPanel
       currentTitle={currentTitle}
