@@ -47,3 +47,10 @@ export function formatTimeAgo(dateString: string) {
   const diffInDays = Math.floor(diffInHours / 24);
   return `${diffInDays}일 전`;
 }
+
+export const getTagsForSoftware = (software: string): string[] => {
+  if (software === "CLO") return ["Avatar", "Colorway", "Pattern", "Rendering"];
+  if (software === "MarvelousDesigner")
+    return ["Animation", "Retopology", "Texture", "UnrealEngine"];
+  return ["CLO-SET", "CONNECT", "EveryWear", "LiveSync"];
+};

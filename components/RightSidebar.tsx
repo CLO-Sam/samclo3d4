@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { getCategoryName, formatDateKorean } from "../utils/helper";
 import PopularPostItem, { PopularPostData } from "./PopularPostItem";
 
 const RightSidebarWrapper = styled.aside`
@@ -18,11 +17,6 @@ const RightSidebarTitle = styled.h3`
   font-weight: bold;
   margin: 0 0 24px 0;
 `;
-
-interface RightSidebarProps {
-  popularPosts: PopularPostData[] | undefined;
-  onPostClick: (post: PopularPostData) => void;
-}
 
 interface RightSidebarProps {
   popularPosts: PopularPostData[] | undefined;

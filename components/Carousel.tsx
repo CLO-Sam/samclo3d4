@@ -150,7 +150,7 @@ const CarouselNavBtn = styled.button<{ direction: "left" | "right" }>`
   }
 `;
 
-interface BannerPost {
+export interface BannerPost {
   postId: string;
   title: string;
   summary: string;

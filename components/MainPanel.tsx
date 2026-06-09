@@ -1,19 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
-import { openFilterModal } from "../store/uiSlice";
-import {
-  setSelectedSoftware,
-  setSelectedTag,
-  setSearchInput,
-  setActiveKeyword,
-} from "../store/filterSlice";
 import { SOFTWARE_OPTIONS } from "../constants/navigation";
 
 import BoardHeader from "./BoardHeader";
 import PinnedPost from "./PinnedPost";
 import PostItem, { PostItemData } from "./PostItem";
+import { getTagsForSoftware } from "../utils/helper";
 
 const MainPanelWrapper = styled.main`
   flex: 1;
@@ -269,7 +261,6 @@ interface MainPanelProps {
   scrollTags: (direction: "left" | "right") => void;
   tagsScrollRef: React.RefObject<HTMLDivElement>;
   checkTagsScroll: () => void;
-  getTagsForSoftware: (software: string) => string[];
   handleSearchKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   searchInputRef: React.RefObject<HTMLInputElement>;
   pinnedPosts: PostItemData[];
@@ -281,6 +272,15 @@ interface MainPanelProps {
   postData: any;
   loadMoreRef: React.RefObject<HTMLDivElement>;
   isFetchingNextPage: boolean;
+
+  selectedSoftware: string;
+  selectedTag: string;
+  searchInput: string;
+  onSoftwareChange: (opt: string) => void;
+  onTagChange: (tag: string) => void;
+  onSearchChange: (val: string) => void;
+  onClearSearch: () => void;
+  onOpenFilterModal: () => void;
 }
 
 export default function MainPanel({
@@ -291,7 +291,6 @@ export default function MainPanel({
   scrollTags,
   tagsScrollRef,
   checkTagsScroll,
-  getTagsForSoftware,
   handleSearchKeyDown,
   searchInputRef,
   pinnedPosts,
@@ -303,12 +302,15 @@ export default function MainPanel({
   postData,
   loadMoreRef,
   isFetchingNextPage,
+  selectedSoftware,
+  selectedTag,
+  searchInput,
+  onSoftwareChange,
+  onTagChange,
+  onSearchChange,
+  onClearSearch,
+  onOpenFilterModal,
 }: MainPanelProps) {
-  const dispatch = useDispatch();
-  const { selectedSoftware, selectedTag, searchInput } = useSelector(
-    (state: RootState) => state.filter,
-  );
-
   const [isSoftwareOpen, setIsSoftwareOpen] = useState(false);
   const softwareRef = useRef<HTMLDivElement>(null);
 
@@ -355,7 +357,7 @@ export default function MainPanel({
                 key={opt}
                 active={selectedSoftware === opt}
                 onClick={() => {
-                  dispatch(setSelectedSoftware(opt));
+                  onSoftwareChange(opt);
                   setIsSoftwareOpen(false);
                 }}
               >
@@ -395,7 +397,7 @@ export default function MainPanel({
                 <TagBtn
                   key={tag}
                   active={selectedTag === tag}
-                  onClick={() => dispatch(setSelectedTag(tag))}
+                  onClick={() => onTagChange(tag)}
                 >
                   {tag}
                 </TagBtn>
@@ -437,17 +439,11 @@ export default function MainPanel({
               ref={searchInputRef}
               placeholder={`${currentTitle}에서 검색`}
               value={searchInput}
-              onChange={(e) => dispatch(setSearchInput(e.target.value))}
+              onChange={(e) => onSearchChange(e.target.value)}
               onKeyDown={handleSearchKeyDown}
             />
             {searchInput.length > 0 && (
-              <ClearInputBtn
-                onClick={() => {
-                  dispatch(setSearchInput(""));
-                  dispatch(setActiveKeyword(""));
-                  dispatch(setSelectedTag(""));
-                }}
-              >
+              <ClearInputBtn onClick={onClearSearch}>
                 <svg
                   viewBox="0 0 24 24"
                   width="16"
@@ -459,7 +455,7 @@ export default function MainPanel({
               </ClearInputBtn>
             )}
           </SearchInputBox>
-          <FilterIconBtn onClick={() => dispatch(openFilterModal())}>
+          <FilterIconBtn onClick={onOpenFilterModal}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z" />
             </svg>
